@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
     //  #TODO :: understand why "Ele" is needed in closest-points code ! 
     // Sadly, this does not accomadate Homogenous coordinates
     igl::point_mesh_squared_distance(normalizeHomogenousMatrix(transformMatAppliedTo_p_i_iterK),normalizeHomogenousMatrix(q),Ele,smallestSquaredDists,smallestDistIndxs,q_j_k);  
-    q_j_k_homog = convertToHomogenouForm(q_j_k);
+    Eigen::MatrixXd q_j_k_homog = convertToHomogenousForm(q_j_k);
 
     // apply Procrstues to solve for T, that minimizes norm (T*p_i - q_j_k )
     Eigen::MatrixXd Rotate;
