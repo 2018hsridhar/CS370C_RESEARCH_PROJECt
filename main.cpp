@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
 */
 
   int numControlPoints = p_i.rows();
-  Eigen::MatrixXd transformMat_iterK = Eigen::MatrixXd::Identity(3, 3); 
+  Eigen::MatrixXd transformMat_iterK = Eigen::MatrixXd::Identity(4, 4); 
   //Eigen::MatrixXd transformMatAppliedTo_p_i_iterK = (p_i * transformMat_iterK).rowwise(); // err here WHY???
   Eigen::MatrixXd transformMatAppliedTo_p_i_iterK = p_i; //#TODO :: get previous like working correctly? weird type error occuring
   // #TODO :: understand how construction MatrixXd XPrime = (X*R).rowwise() + t.transpose() makes sense
@@ -124,12 +124,22 @@ int main(int argc, char *argv[])
     Eigen::MatrixXd q_j_k_homog = convertToHomogenousForm(q_j_k);
 
     // apply Procrstues to solve for T, that minimizes norm (T*p_i - q_j_k )
-    Eigen::MatrixXd Rotate;
-    Eigen::VectorXd Translate;
+    Eigen::Matrix4d Rotate;
+    Eigen::Vector4d Translate;
     double Scale;
     igl::procrustes(transformMatAppliedTo_p_i_iterK, q_j_k_homog, false,false,Scale,Rotate,Translate ); 
     // #TODO :: should "r" be allowed to be a reflection matrix? not sure what this exactly means ??
-    Eigen::MatrixXd newTransformMatrix = Rotate + Translate.transpose();  // this should work ...I think
+
+/*
+    std::cout << "Analysis of rotate    " << "(" << Rotate.rows() << "," << Rotate.cols() << ")" << std::endl;
+    std::cout << "Analysis of translate " << "(" << Translate.rows() << "," << Translate.cols() << ")" << std::endl;
+    std::cout << Rotate << std::endl;
+    std::cout << Translate << std::endl;
+*/
+
+    Eigen::Matrix4d newTransformMatrix = Rotate;
+    newTransformMatrix.col(3) += Translate;  
+    //std::cout << "Here2\n";
     // #TODO :: chck if this caluation is correct. ( line above me ) 
 	transformMat_iterK = newTransformMatrix * transformMat_iterK;  
   }
@@ -146,20 +156,3 @@ int main(int argc, char *argv[])
   viewer.data.set_mesh(V_one, F_one);
   viewer.launch();
 }
-  
-  /*
-  Eigen::Matrix3f m = Matrix3f::Random();
-  std::cout << m << std::endl;
-
-  Eigen::MatrixXf homogenous = convertToHomogenousForm(m);
-  std::cout << "\n\n\n" << std::endl;
-  std::cout << homogenous << std::endl;
-
-  Eigen::MatrixXf deHomogenous = normalizeHomogenousMatrix(homogenous);
-  std::cout << "\n\n\n" << std::endl;
-  std::cout << deHomogenous << std::endl;
-*/
-
-
-
-
