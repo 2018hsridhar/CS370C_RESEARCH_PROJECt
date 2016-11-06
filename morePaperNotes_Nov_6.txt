@@ -1,0 +1,8 @@
+Based on discussion with Billy Swartworth
+
+1. Yes, I am assuming that we have 3D-model data ( from the point cloud ). The question of how to convert a 2D image to a point cloud does not need to be addressed
+2. I am assuming that an IDEAL , but not ACCURATe, alignment is provided by the user. That is, we already have a good idea about how the two pieces/meshes are supposed to fit ... we just don't have a good idea how to fill in the remaining space.
+3. 
+
+
+
