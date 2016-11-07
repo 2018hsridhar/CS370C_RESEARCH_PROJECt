@@ -15,10 +15,8 @@ Eigen::MatrixXi F_one;
 Eigen::MatrixXd V_two;
 Eigen::MatrixXi F_two;
 
-Eigen::MatrixXd V_Approx;
-Eigen::MatrixXi F_Approx;
-
-Eigen::MatrixXd meshOneVertexNormals;
+Eigen::MatrixXd V_approx;
+Eigen::MatrixXi F_approx;
 
 Eigen::MatrixXd convertToHomogenousForm(const Ref<const MatrixXd>& mat )
 {
@@ -32,6 +30,34 @@ Eigen::MatrixXd normalizeHomogenousMatrix (const Ref<const MatrixXd>& mat )
   Eigen::MatrixXd normalizedMatrix;
   normalizedMatrix = mat.transpose().colwise().hnormalized().transpose(); 
   return normalizedMatrix;
+}
+
+// function is called when keyboard buttons are pressed down. useful for alternating amongst a set of differing views
+bool key_down( igl::viewer::Viewer& viewer, unsigned char key, int modifier)
+{
+  std::cout << "Key : " << key << (unsigned int) key << std::endl;
+  if ( key == '1' )
+  {
+    // clear data before drawing mesh
+    viewer.data.clear();
+    viewer.data.set_mesh(V_one,F_one);
+    viewer.core.align_camera_center(V_one,F_one); 
+  }
+  else if ( key == '2' ) 
+  {
+    // clear data before drawing mesh
+    viewer.data.clear();
+    viewer.data.set_mesh(V_two,F_two);
+    viewer.core.align_camera_center(V_two,F_two);
+  } 
+  else if ( key == '3' ) 
+  {
+    // clear data before drawing mesh
+    viewer.data.clear();
+    viewer.data.set_mesh(V_approx,F_approx);
+    viewer.core.align_camera_center(V_approx,F_approx);
+  }
+  return false;
 }
 
 int main(int argc, char *argv[])
@@ -119,6 +145,8 @@ int main(int argc, char *argv[])
 	// find intersection qi_k on surface Q, based on normal lines !
 
   igl::viewer::Viewer viewer;
+  viewer.callback_key_down = &key_down;
   viewer.data.set_mesh(V_one, F_one);
   viewer.launch();
 }
+
