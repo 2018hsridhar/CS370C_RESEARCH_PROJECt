@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
   /***********************************************************/ 
   std::cout << R"(
 1 switch to identity view
-2 Switch to rotated view 1
+2 Switch to rotated view
 3 Switch to ICP view 
     )";
 
@@ -57,19 +57,6 @@ int main(int argc, char *argv[])
     cout << " Failed to load mesh " << endl;
   }
 
-  // *********************************************************** 
-  // TODO : set up as a preallocation step  ( wait ... what is this ?? ) 
-  // CALCULATE the rotated form of the mesh 
-  // *********************************************************** 
-
-/*
-  Eigen::Vector3d e1 ( 0, 0, -1 ); 
-  Eigen::Vector3d e2 ( 1, 0, 0 ); 
-  Eigen::Matrix3d rot_matrix_zAxis = igl::rotation_matrix_from_directions (e1, e2 );
-  V_two = V_one * rot_matrix_zAxis;
-  F_two = F_one; 
-*/
-
   /***********************************************************/ 
   // STEP (1) :: SELECT control points pi \in P ( i = 1..N), , compute surface normals n_pi, set initial transformation matrix T_0
   /***********************************************************/ 
@@ -79,23 +66,6 @@ int main(int argc, char *argv[])
 
   Eigen::MatrixXd p_i = convertToHomogenousForm(V_one); // #TODO check if need for sampling from here
   Eigen::MatrixXd q = convertToHomogenousForm(V_two); // #TODO check if need for sampling from here
-  //Eigen::MatrixXd p_i = V_one; // #TODO check if need for sampling from here
-  //Eigen::MatrixXd q = V_two; // #TODO check if need for sampling from here
-
-/* ... can be deleted later ..
-  Eigen::MatrixXd Rotate;
-  Eigen::VectorXd Translate;
-  double Scale;
-  std::cout << "Here1\n";
-  igl::procrustes(p_i, q, false,false,Scale,Rotate,Translate ); 
-  Eigen::MatrixXd applyProc = (p_i * Rotate).rowwise() + Translate.transpose();
-  std::cout << "Applied procrustes" << std::endl;
-  std::cout << "Analysis of matrix p_i" << "(" << p_i.rows() << "," << p_i.cols() << ")" << std::endl;
-  std::cout << "Analysis of rotate    " << "(" << Rotate.rows() << "," << Rotate.cols() << ")" << std::endl;
-  std::cout << "Analysis of translate " << "(" << Translate.rows() << "," << Translate.cols() << ")" << std::endl;
-  std::cout << "Analysis of applyProc " << "(" << applyProc.rows() << "," << applyProc.cols() << ")" << std::endl;
-  std::cout << "Analyze dimensions of all matrices" << std::endl;
-*/
 
   int numControlPoints = p_i.rows();
   Eigen::MatrixXd transformMat_iterK = Eigen::MatrixXd::Identity(4, 4); 
@@ -144,13 +114,9 @@ int main(int argc, char *argv[])
 	transformMat_iterK = newTransformMatrix * transformMat_iterK;  
   }
 
-	//approach 2 ( code this up l8r ) 
+	//approach 2 ( code this up later ) 
 	//Eigen::MatrixXd meshOneVertexNormals_prime = transformMat_k * meshOneVertexNormals;
 	// find intersection qi_k on surface Q, based on normal lines !
-
-  // *********************************************************** 
-  // Plot the initial mesh 
-  // *********************************************************** 
 
   igl::viewer::Viewer viewer;
   viewer.data.set_mesh(V_one, F_one);
