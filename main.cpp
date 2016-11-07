@@ -93,15 +93,26 @@ int main(int argc, char *argv[])
 
   int numControlPoints = p_i.rows();
   Eigen::MatrixXd transformMat_iterK = Eigen::MatrixXd::Identity(4, 4); 
-  //Eigen::MatrixXd transformMatAppliedTo_p_i_iterK = (p_i * transformMat_iterK).rowwise(); // #TODO :: why error here?
-  Eigen::MatrixXd transformMatAppliedTo_p_i_iterK = p_i; //#TODO :: get previous like working correctly? weird type error occuring
+  Eigen::VectorXd hack = Eigen::Vector4d (0,0,0,0);
+
+   /*
+	std::cout << "Analysis of transformMat_iterK ( rotate ) " << "(" << transformMat_iterK.rows() << "," << transformMat_iterK.cols() << ")" << std::endl;
+	std::cout << "Analysis of hack ( translate ) " << "(" << hack.rows() << "," << hack.cols() << ")" << std::endl;
+	std::cout << transformMat_iterK << std::endl;
+	std::cout << hack << std::endl;
+   */
+
+  Eigen::MatrixXd transformMatAppliedTo_p_i_iterK = (p_i * transformMat_iterK).rowwise() + hack.transpose(); // #TODO :: why error here? seems to be a dumb typing thing TBH
+
+
+  //Eigen::MatrixXd transformMatAppliedTo_p_i_iterK = p_i; //#TODO :: get previous like working correctly? weird type error occuring
   // #TODO :: understand how construction MatrixXd XPrime = (X*R).rowwise() + t.transpose() makes sense
 
   /***********************************************************/ 
-  // ITERATIVELY improve procrustes method for transformation matrix
+  // ITERATIVELY improve rigid ICP method , for solving the transformation matrix
   /***********************************************************/ 
   int k;
-  int maxIters = 10;
+  int maxIters = 10; // so this blew up @ 100 iterations ... was something incorrect here. #TODO assert correctness !
   for ( k = 1; k <= maxIters; k += 1 ) 
   {
     // we need to create a new matrix of minimum q's !!
@@ -141,6 +152,13 @@ int main(int argc, char *argv[])
     newTransformMatrix.col(3) += Translate;  
 	transformMat_iterK = newTransformMatrix * transformMat_iterK;  
   }
+
+  /***********************************************************/ 
+  // CALCULATE the mesh based on RIGID ICP transformation 
+  /***********************************************************/ 
+  F_approx = F_one;
+  Eigen::MatrixXd rigidIcpMesh = (p_i * transformMat_iterK).rowwise() + hack.transpose(); 
+  V_approx = normalizeHomogenousMatrix(rigidIcpMesh);
 
   /***********************************************************/ 
   // SETUP LibIgl Viewer 
