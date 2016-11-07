@@ -9,7 +9,6 @@
 #include <igl/cotmatrix.h>
 #include <igl/massmatrix.h> // remember !! use barycentric ! 
 
-
 using namespace Eigen; 
 using namespace std;
 
@@ -70,7 +69,8 @@ int main(int argc, char *argv[])
 2 Switch to mean curvature based view ( convert to rotated, as best as possible ) 
     )";
 
-  igl::readOFF(TUTORIAL_SHARED_PATH "/bunny.off", V_one, F_one);
+  //igl::readOFF(TUTORIAL_SHARED_PATH "/bunny.off", V_one, F_one); ---> the naive approach is slow for the bunny
+  igl::readOFF(TUTORIAL_SHARED_PATH "/cube.off", V_one, F_one); 
 
 
   /***********************************************************/ 
@@ -78,32 +78,54 @@ int main(int argc, char *argv[])
   /***********************************************************/ 
 
   int numVerticesMeshOne = V_one.rows();
-  Eigen::SparseMatrix<float> stiffnessMatrix (numVerticesMeshOne,numVerticesMeshOne); 
-  Eigen::SparseMatrix<float> massMatrix (numVerticesMeshOne,numVerticesMeshOne); 
+  Eigen::SparseMatrix<double> stiffnessMatrix_iterK ; // dimensinos will be filled in :-)
+  Eigen::SparseMatrix<double> massMatrix_iterK ;
 
-  igl::cotmatrix(V_one,F_one, sitffnessMatrix );  
-  MassMatrixType mcfType = MASSMATRIX_TYPE_BARYCENTRIC;
-  igl::massmatrix(V_one,F_one, mcfType , massMatrix);  
+  igl::cotmatrix(V_one,F_one, stiffnessMatrix_iterK );  
+  igl::MassMatrixType mcfType = igl::MASSMATRIX_TYPE_BARYCENTRIC;
+  igl::massmatrix(V_one,F_one, mcfType, massMatrix_iterK);  
 
 	// split columns
 	// solve the system
 	// put_back_values 
 	// update mass-stiffness matrices    
-
   // Run for timesteps \delta , for max_iter number of iterations
+
   int k;
-  int maxIters = 100;
+  int maxIters = 10;
   double delta = 0.1; 
   V_mcf = V_one;
   F_mcf = F_one;
   for ( k = 1; k <= maxIters; k += 1 ) 
   {
+      // for reconstruction each column's coefficeints ... into one huge matrix again
+      Eigen::MatrixXd newVertices(numVerticesMeshOne,3);
+      newVertices.setZero(); // alec jacobson's post :-) 
+//    solve(); #TODO :: this should be a method , when I think about it ! 
+      int m;
+
+      // why is this all zeroed out?? ... something in this math is definetely INCORRECT ... 
       for ( m = 0; m < 3; m++ )
       {
-          MatrixXd vertex_dimComponent = V_mcf.col(m);        
-//          solve(); #TODO :: this should be a method , when I think about it ! 
-
+          Eigen::MatrixXd vertex_dimComponent = V_mcf.col(m);        
+          Eigen::MatrixXd A = ( massMatrix_iterK - ( delta * stiffnessMatrix_iterK ));
+          Eigen::MatrixXd B = ( massMatrix_iterK * vertex_dimComponent); // why is this matrix all 0's!
+          std::cout << vertex_dimComponent << std::endl;
+          std::cout << massMatrix_iterK << std::endl;
+          std::cout << A << "\n massMatrix_iterK - delta * stiffnessmatrix_iterK " << std::endl;
+          std::cout << B << "\n massMatrix_iterK * vertex_dimComponent" << std::endl;
+          std::cout << "\n\n" << std::endl;
+          Eigen::MatrixXd newCoefficients = A.colPivHouseholderQr().solve(B); 
+          newVertices.col(m) += newCoefficients;
       }
+      // update vertices, laplacian matrix, and mass matrix
+      V_mcf = newVertices;
+      std::cout << "here1\n";
+      igl::cotmatrix(V_mcf,F_mcf, stiffnessMatrix_iterK );   // error is here? I wonder why ??
+      std::cout << "here1.1\n";
+      igl::MassMatrixType mcfType = igl::MASSMATRIX_TYPE_BARYCENTRIC;
+      igl::massmatrix(V_mcf,F_mcf, mcfType , massMatrix_iterK);  
+      std::cout << "here2\n";
   }
 
   /***********************************************************/ 
@@ -114,33 +136,3 @@ int main(int argc, char *argv[])
   viewer.data.set_mesh(V_one, F_one);
   viewer.launch();
 }
-
-  /*// note :: do store a couple of test matrices ... they seem to be useful for l8r purposes :-) 
-  Eigen::Matrix3f m = Matrix3f::Random();
-  std::cout << m << std::endl;
-
-  Eigen::MatrixXf homogenous = convertToHomogenousForm(m);
-  std::cout << "\n\n\n" << std::endl;
-  std::cout << homogenous << std::endl;
-
-  Eigen::MatrixXf deHomogenous = normalizeHomogenousMatrix(homogenous);
-  std::cout << "\n\n\n" << std::endl;
-  std::cout << deHomogenous << std::endl;
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

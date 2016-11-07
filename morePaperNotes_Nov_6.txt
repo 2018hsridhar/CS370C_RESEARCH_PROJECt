@@ -15,8 +15,8 @@ Questions on Mean-Curvature-Flow
     -- well, in acutally, this probably isn't hard too. its just x = A\B;
 3. Do I need to homogenoize the system? I think not ... but I am unsure?
     => my understanding :: I think not. the system does not really involve a ( translation + rotation ) issue [ that I know of ] ??
-4.
-5.
+4. Should I be using doubles or float ?
+5. For solving AX=B, which decompoisition should be used ( see " Linear algebra and decompoisitions " ) 
 6.
 
 
