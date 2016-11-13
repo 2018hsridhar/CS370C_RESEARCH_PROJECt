@@ -8,7 +8,7 @@
 #include <igl/per_vertex_normals.h>
 #include <igl/point_mesh_squared_distance.h>
 #include <igl/cotmatrix.h>
-#include <igl/massmatrix.h> // remember !! use barycentric ! 
+#include <igl/massmatrix.h> 
 
 using namespace Eigen; 
 using namespace std;
