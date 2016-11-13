@@ -18,20 +18,10 @@ Eigen::MatrixXi F_one;
 Eigen::MatrixXd V_mcf;
 Eigen::MatrixXi F_mcf;
 
-// note :: this is ONLY FOR POINTS ... if they were vectors ... then I need a different method !
-Eigen::MatrixXd convertToHomogenousForm(const Ref<const MatrixXd>& mat )
-{
-  Eigen::MatrixXd homogenoizedMatrix;
-  homogenoizedMatrix = mat.transpose().colwise().homogeneous().transpose(); 
-  return homogenoizedMatrix;
-}
-
-Eigen::MatrixXd normalizeHomogenousMatrix (const Ref<const MatrixXd>& mat )
-{
-  Eigen::MatrixXd normalizedMatrix;
-  normalizedMatrix = mat.transpose().colwise().hnormalized().transpose(); 
-  return normalizedMatrix;
-}
+Eigen::SparseMatrix<double> massMatrix_iterK ;
+Eigen::SparseMatrix<double> stiffnessMatrix_iterK ; 
+double delta = 0.001; 
+int maxIters = 15; 
 
 // function is called when keyboard buttons are pressed down. useful for alternating amongst a set of differing views
 bool key_down( igl::viewer::Viewer& viewer, unsigned char key, int modifier)
@@ -48,6 +38,15 @@ bool key_down( igl::viewer::Viewer& viewer, unsigned char key, int modifier)
   {
     // clear data before drawing mesh
     viewer.data.clear();
+    applyOneTimeStepOfMeanCurvatureFlow();
+    viewer.data.set_mesh(V_mcf,F_mcf);
+    viewer.core.align_camera_center(V_mcf,F_mcf);
+  }else if ( key == '3' ) 
+  {
+    // clear data before drawing mesh
+    viewer.data.clear();
+    V_mcf = V_one;
+    F_mcf = F_one;
     viewer.data.set_mesh(V_mcf,F_mcf);
     viewer.core.align_camera_center(V_mcf,F_mcf);
   } 
@@ -60,33 +59,29 @@ int main(int argc, char *argv[])
 
   // *********************************************************** 
   // PRINT OUT CRITICAL INFORMATION TO USER / DEVELOPER 
-  // Load mesh data , in OFF format
+  // LOAD mesh data ( OFF format )
   // Q1. what asssumptions can I make about my mesh input data?? I'm pretty sure I cannot assume that they are the same size !
   // *********************************************************** 
 
   std::cout << R"(
-1 switch to initial view
-2 Switch to mean curvature based view ( convert to rotated, as best as possible ) 
+1 Switch to initial view
+2 Run mean curvature based view 
+3 Reset mean curvature based view  ( can rerun again ) 
     )";
 
   igl::readOFF(TUTORIAL_SHARED_PATH "/bunny.off", V_one, F_one); 
+  V_mcf = V_one;
+  F_mcf = F_one;
 
   /***********************************************************/ 
   // #TODO :: FILL IN THIS ENTRY LATER 
   /***********************************************************/ 
-
-  Eigen::SparseMatrix<double> massMatrix_iterK ;
-  Eigen::SparseMatrix<double> stiffnessMatrix_iterK ; 
 
   igl::cotmatrix(V_one,F_one, stiffnessMatrix_iterK );  
   igl::MassMatrixType mcfType = igl::MASSMATRIX_TYPE_BARYCENTRIC;
   igl::massmatrix(V_one,F_one, mcfType, massMatrix_iterK);  
 
   int k;
-  int maxIters = 15; // for some reason ... I get a weird error @ say, 5 iterations ...vs 2 iterations ... WHAT!! ... there should be no error with iterations ! not sure why mass + stiffness matrix is getting updated weirdly
-  double delta = 0.001; 
-  V_mcf = V_one;
-  F_mcf = F_one;
   for ( k = 1; k <= maxIters; k += 1 ) 
   {
       Eigen::SparseMatrix<double> A = ( massMatrix_iterK - ( delta * stiffnessMatrix_iterK ));
