@@ -1,4 +1,5 @@
-// IN mainc.pp file for TUTORIAL 102
+// SADLY, volume works ONLY for tetrahedral meshes :-( . so too , is face_areas.h !
+// NOT sure if I should use vector_area.h or double_area.h?? ... double area ! vector_area only inhputs FACES ( gives you a generic matrix really ) ... no vertex info thoguh !
 #include <igl/readOFF.h>
 #include <igl/readOBJ.h>
 #include <igl/viewer/Viewer.h>
@@ -9,6 +10,7 @@
 #include <igl/point_mesh_squared_distance.h>
 #include <igl/cotmatrix.h>
 #include <igl/massmatrix.h> 
+#include <igl/doublearea.h>
 
 using namespace Eigen; 
 using namespace std;
@@ -20,7 +22,8 @@ Eigen::MatrixXd V_mcf;
 
 Eigen::SparseMatrix<double> massMatrix_iterK ;
 Eigen::SparseMatrix<double> stiffnessMatrix_iterK ; 
-double delta = 0.001; 
+//double delta = 0.00001; clearluy, a smaller delta = more stability, but also more computaiton
+double delta = 0.001;
 int k = 0;
 
 void applyOneTimeStepOfMeanCurvatureFlow();
@@ -45,7 +48,7 @@ bool key_down( igl::viewer::Viewer& viewer, unsigned char key, int modifier)
     viewer.data.clear();
 	applyOneTimeStepOfMeanCurvatureFlow();
     viewer.data.set_mesh(V_mcf,F_one);
-    // viewer.data.set_vertices(V_mcf); ... faces mysterioulsy dissapear somehow !
+    // #TODO :: run for 512 steps, and identify numerical instabilites based on solution's EXISTENCE !  
     viewer.core.align_camera_center(V_mcf,F_one);
   } 
   else if ( key == '3' ) {
@@ -90,8 +93,15 @@ void applyOneTimeStepOfMeanCurvatureFlow()
 	igl::MassMatrixType mcfType = igl::MASSMATRIX_TYPE_BARYCENTRIC;
 	igl::massmatrix(V_mcf,F_one, mcfType, massMatrix_iterK);  
 	std::cout << "[3] Succesfully updated mass and stiffness matrices \n";
+
+    Eigen::VectorXd dbla;
+    igl::doublearea(V_mcf,F_one,dbla);
+    double newVolume = 0.5 * dbla.sum(); 
+    V_mcf /= std::sqrt(newVolume);
+
+	std::cout << "[4] Rescaled by mesh volume / unit area \n"; 
     k += 1;
-	std::cout << " [4] Finished iteration "<< (k-1) << "." <<  std::endl;
+	std::cout << " [5] Finished iteration "<< (k-1) << "." <<  std::endl;
 }
 
 int main(int argc, char *argv[])
@@ -105,8 +115,8 @@ int main(int argc, char *argv[])
     )";
 
   // LOAD mesh data ( OFF format )
-  igl::readOFF(TUTORIAL_SHARED_PATH "/bunny.off", V_one, F_one); 
-  //igl::readOFF(TUTORIAL_SHARED_PATH "/cow.off", V_one, F_one); 
+  //igl::readOFF(TUTORIAL_SHARED_PATH "/bunny.off", V_one, F_one); 
+  igl::readOFF(TUTORIAL_SHARED_PATH "/cow.off", V_one, F_one); 
   //igl::readOFF(TUTORIAL_SHARED_PATH "/proper_sphere.off", V_one, F_one);  // this has a dumb io issue !
   V_mcf = V_one;
 

@@ -2801,6 +2801,8 @@ igl/cotmatrix.h
 -
 igl/massmatrix.h
 -
+igl/doublearea.h
+-
 
 /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/tutorial_shared_path.h
 
