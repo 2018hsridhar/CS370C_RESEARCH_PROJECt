@@ -69,19 +69,18 @@ int main(int argc, char *argv[])
 2 Switch to mean curvature based view ( convert to rotated, as best as possible ) 
     )";
 
-  //igl::readOFF(TUTORIAL_SHARED_PATH "/bunny.off", V_one, F_one); ---> the naive approach is slow for the bunny
-  igl::readOFF(TUTORIAL_SHARED_PATH "/cube.off", V_one, F_one); 
+ // igl::readOFF(TUTORIAL_SHARED_PATH "/bunny.off", V_one, F_one); //---> the naive approach is slow for the bunny
+  igl::readOFF(TUTORIAL_SHARED_PATH "/cow.off", V_one, F_one); 
 
 
   /***********************************************************/ 
   // #TODO :: FILL IN THIS ENTRY LATER 
   /***********************************************************/ 
 
-  int numVerticesMeshOne = V_one.rows();
-  Eigen::SparseMatrix<double> stiffnessMatrix_iterK ; // dimensinos will be filled in :-)
   Eigen::SparseMatrix<double> massMatrix_iterK ;
+  Eigen::SparseMatrix<double> stiffnessMatrix_iterK ; 
 
-  igl::cotmatrix(V_one,F_one, stiffnessMatrix_iterK );  
+//  igl::cotmatrix(V_one,F_one, stiffnessMatrix_iterK );  //  technically, the stiffness matrix is calculated only once !
   igl::MassMatrixType mcfType = igl::MASSMATRIX_TYPE_BARYCENTRIC;
   igl::massmatrix(V_one,F_one, mcfType, massMatrix_iterK);  
 
@@ -89,43 +88,41 @@ int main(int argc, char *argv[])
 	// solve the system
 	// put_back_values 
 	// update mass-stiffness matrices    
-  // Run for timesteps \delta , for max_iter number of iterations
+    // Run for timesteps \delta , for max_iter number of iterations
 
   int k;
-  int maxIters = 10;
-  double delta = 0.1; 
+  int maxIters = 15; // for some reason ... I get a weird error @ say, 5 iterations ...vs 2 iterations ... WHAT!! ... there should be no error with iterations ! not sure why mass + stiffness matrix is getting updated weirdly
+  double delta = 0.001; 
   V_mcf = V_one;
   F_mcf = F_one;
   for ( k = 1; k <= maxIters; k += 1 ) 
   {
-      // for reconstruction each column's coefficeints ... into one huge matrix again
-      Eigen::MatrixXd newVertices(numVerticesMeshOne,3);
-      newVertices.setZero(); // alec jacobson's post :-) 
-//    solve(); #TODO :: this should be a method , when I think about it ! 
-      int m;
+      std::cout << "here 1\n";
+      // newVertices.setZero(); // see alec jacobson's post for why this was used  .. no need :: just use auto !
 
-      // why is this all zeroed out?? ... something in this math is definetely INCORRECT ... 
-      for ( m = 0; m < 3; m++ )
-      {
-          Eigen::MatrixXd vertex_dimComponent = V_mcf.col(m);        
-          Eigen::MatrixXd A = ( massMatrix_iterK - ( delta * stiffnessMatrix_iterK ));
-          Eigen::MatrixXd B = ( massMatrix_iterK * vertex_dimComponent); // why is this matrix all 0's!
-          std::cout << vertex_dimComponent << std::endl;
-          std::cout << massMatrix_iterK << std::endl;
-          std::cout << A << "\n massMatrix_iterK - delta * stiffnessmatrix_iterK " << std::endl;
-          std::cout << B << "\n massMatrix_iterK * vertex_dimComponent" << std::endl;
-          std::cout << "\n\n" << std::endl;
-          Eigen::MatrixXd newCoefficients = A.colPivHouseholderQr().solve(B); 
-          newVertices.col(m) += newCoefficients;
+      Eigen::SparseMatrix<double> A = ( massMatrix_iterK - ( delta * stiffnessMatrix_iterK ));
+      Eigen::MatrixXd B = ( massMatrix_iterK * V_mcf); 
+      // Q1 :: should I be solving for an EXACT sol ( direct method ) or APPROX sol ( iterative method ) ?? 
+      Eigen::SimplicialLLT<Eigen::SparseMatrix<double> > solver; 
+	  // choice was made, since , ACCORDING to EIGEn, this was the msot basic sparse-matrix solver 
+ 	  // PLUS cotan matrix is self-adjoint ( i believe. .. need to check ). other matrix properties do not fit here !
+      std::cout << "here 2\n";
+      solver.compute(A); 
+      if(solver.info() != Eigen::Success) {
+          std::cout << "Decomposition of A failed." << std::endl;
+      } 
+      auto updatedMeshVertices = solver.solve(B);
+      if ( solver.info() != Eigen::Success )  {
+          std::cout << "Solving B failed." << std::endl;
       }
+      V_mcf = updatedMeshVertices.eval(); // what is the difference between "solve" and "eval" ???
+     
       // update vertices, laplacian matrix, and mass matrix
-      V_mcf = newVertices;
-      std::cout << "here1\n";
-      igl::cotmatrix(V_mcf,F_mcf, stiffnessMatrix_iterK );   // error is here? I wonder why ??
-      std::cout << "here1.1\n";
+      std::cout << "here 3\n"; // there is an issue here! ( line immediately below ... I wonder why ! ) 
+      //igl::cotmatrix(V_mcf,F_mcf, stiffnessMatrix_iterK );   // error is here? I wonder why ??
       igl::MassMatrixType mcfType = igl::MASSMATRIX_TYPE_BARYCENTRIC;
-      igl::massmatrix(V_mcf,F_mcf, mcfType , massMatrix_iterK);  
-      std::cout << "here2\n";
+      igl::massmatrix(V_mcf,F_mcf, mcfType, massMatrix_iterK);  
+      std::cout << "here 4\n";
   }
 
   /***********************************************************/ 
