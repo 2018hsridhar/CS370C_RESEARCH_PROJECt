@@ -1,4 +1,4 @@
-// #TODO :: try to exploit innate properties of structures / utilize acceleration structures to quicken computation of values 
+// #TODO :: try to exploit innate properties of structures / utilize acceleration structures to quicken computation of values  ... this takes too damn long to compute !
 #include <igl/readOFF.h>
 #include <igl/viewer/Viewer.h>
 #include "tutorial_shared_path.h"
@@ -76,10 +76,10 @@ int main(int argc, char *argv[])
     )";
 
   if(!igl::readOFF(TUTORIAL_SHARED_PATH "/bunny.off", V_one, F_one)) {
-    cout << " Failed to load mesh " << endl;
+    cout << " Failed to load mesh [bunny]" << endl;
   }
-  if(!igl::readOFF(TUTORIAL_SHARED_PATH "/dataset2.off", V_two, F_two)) {
-    cout << " Failed to load mesh " << endl;
+  if(!igl::readOFF(TUTORIAL_SHARED_PATH "/dataset90Deg.off", V_two, F_two)) {
+    cout << " Failed to load mesh [2] " << endl;
   }
 
   /***********************************************************/ 
@@ -91,7 +91,8 @@ int main(int argc, char *argv[])
   Eigen::MatrixXd q = convertToHomogenousForm(V_two); 
 
   int maxIters = 1000; 										// max num of iteration  #TODO find a good number of iteration points. My current approach blew up @ 100 iterations 
-  double tolerance = 1e-99;	 								// accuracy threshold 
+//  double tolerance = 1e-6;	 								// accuracy threshold  ... I might want a lower threshold!
+  double tolerance = 0.005;	 								// accuracy threshold  ... I might want a lower threshold! ... this is used for 90-degree ( highly degenerate ) case 
   Eigen::MatrixXd T_0 = Eigen::MatrixXd::Identity(4, 4);  	// initial guess 
   Eigen::MatrixXd T_k = T_0;								// guess at iter k
   Eigen::VectorXd zeroTranslate = Eigen::Vector4d (0,0,0,0);
@@ -107,9 +108,10 @@ int main(int argc, char *argv[])
   /***********************************************************/ 
   // ITERATIVELY improve rigid ICP method , for solving the transformation matrix
   /***********************************************************/ 
-  //while ( k < maxIters && delta_energy > tolerance ) 
-  while ( k < 20)
+  while ( k < maxIters && delta_energy > tolerance ) 
   {
+    std::cout << "Executing iteration " << k << "\n.";
+    std::cout << "Delta energy = " << delta_energy << "\n.";
     // we need to create a new matrix of minimum q's !!
     // take a row of current transformation matrix applied to  p_i, find closest q in mesh-two
     // I need to make sure that I am passing in the correct option !
