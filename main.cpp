@@ -94,15 +94,20 @@ void applyOneTimeStepOfMeanCurvatureFlow()
 		* TECHNICALLY, the stiffness matrix has to be calcualted ONLY once ! Although this too, should work !
 		* IN ADDITION, the mass matrix is also experiencing issues ... but this is only l8r !
 		*/
+		Eigen::VectorXd dbla;
+		igl::doublearea(V_mcf,F_one,dbla);
+		double oldVolume = 0.5 * dbla.sum(); 
+
         V_mcf = newVertices;
 		igl::MassMatrixType mcfType = igl::MASSMATRIX_TYPE_BARYCENTRIC;
 		igl::massmatrix(V_mcf,F_one, mcfType, massMatrix_iterK);  
 		//std::cout << "[3] Succesfully updated mass and stiffness matrices \n";
 
-		Eigen::VectorXd dbla;
-		igl::doublearea(V_mcf,F_one,dbla);
-		double newVolume = 0.5 * dbla.sum(); 
-		V_mcf /= std::sqrt(newVolume);
+		Eigen::VectorXd dbla_new;
+		igl::doublearea(V_mcf,F_one,dbla_new);
+		double newVolume = 0.5 * dbla_new.sum(); 
+
+		V_mcf *= std::cbrt(newVolume/oldVolume); 
 
 		//std::cout << "[4] Rescaled by mesh volume / unit area \n"; 
 		k += 1;
