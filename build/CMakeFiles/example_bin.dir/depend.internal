@@ -660,6 +660,8 @@ CMakeFiles/example_bin.dir/main.cpp.o
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/SortableRow.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/adjacency_list.cpp
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/adjacency_list.h
+ /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/all_pairs_distances.cpp
+ /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/all_pairs_distances.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/axis_angle_to_quat.cpp
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/axis_angle_to_quat.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/barycenter.cpp
@@ -670,23 +672,15 @@ CMakeFiles/example_bin.dir/main.cpp.o
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/canonical_quaternions.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/colon.cpp
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/colon.h
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/cotmatrix.cpp
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/cotmatrix.h
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/cotmatrix_entries.cpp
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/cotmatrix_entries.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/cross.cpp
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/cross.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/deprecated.h
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/dihedral_angles.cpp
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/dihedral_angles.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/dot.cpp
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/dot.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/doublearea.cpp
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/doublearea.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/edge_lengths.cpp
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/edge_lengths.h
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/face_areas.cpp
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/face_areas.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/file_dialog_open.cpp
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/file_dialog_open.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/file_dialog_save.cpp
@@ -730,6 +724,12 @@ CMakeFiles/example_bin.dir/main.cpp.o
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/point_mesh_squared_distance.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/point_simplex_squared_distance.cpp
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/point_simplex_squared_distance.h
+ /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/polar_dec.cpp
+ /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/polar_dec.h
+ /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/polar_svd.cpp
+ /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/polar_svd.h
+ /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/procrustes.cpp
+ /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/procrustes.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/project.cpp
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/project.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/project_to_line.cpp

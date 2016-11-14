@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
   double delta_energy = 1000; 								// delta enegy between two arbitray iterations 
 
   int k = 0;
-  Eigen::MatrixXd transformMatAppliedTo_p_i_iterK = (p_i * T_k).rowwise() + zeroTranslate.transpose(); // #TODO :: why error here? seems to be a dumb typing thing TBH
+  Eigen::MatrixXd p_k = (p_i * T_0).rowwise() + zeroTranslate.transpose(); // #TODO :: why error here? seems to be a dumb typing thing TBH
   Eigen::Matrix4d T = Eigen::MatrixXd::Identity(4,4);
   // #TODO :: understand how construction MatrixXd XPrime = (X*R).rowwise() + t.transpose() makes sense
   //          in the context Eigen::MatrixXd transformMatAppliedTo_p_i_iterK = p_i; 			( => ) I have some weird type err here
@@ -117,13 +117,13 @@ int main(int argc, char *argv[])
     // SADLY, this does not accomadate Homogenous coordinates
 
     /***********************************************************/ 
-    // DISCOVER closest points in q, from transformMat_iter_k * p_i
+    // DISCOVER closest points in q, from p_k 
     /***********************************************************/ 
     Eigen::VectorXi Ele = Eigen::VectorXi::LinSpaced(q.rows(),0,q.rows() - 1);
     Eigen::VectorXd smallestSquaredDists;
     Eigen::VectorXi smallestDistIndxs;
     Eigen::MatrixXd q_j_k; 				// this coresponds to closestPointsTo_p_i_From_q ;
-    igl::point_mesh_squared_distance(normalizeHomogenousMatrix(transformMatAppliedTo_p_i_iterK),normalizeHomogenousMatrix(q),Ele,smallestSquaredDists,smallestDistIndxs,q_j_k);   // note :: this is T^(k-1)! 
+    igl::point_mesh_squared_distance(normalizeHomogenousMatrix(p_k),normalizeHomogenousMatrix(q),Ele,smallestSquaredDists,smallestDistIndxs,q_j_k);   // note :: this is T^(k-1)! 
     Eigen::MatrixXd q_j_k_homog = convertToHomogenousForm(q_j_k);
 
     /***********************************************************/ 
@@ -133,23 +133,23 @@ int main(int argc, char *argv[])
     Eigen::Matrix4d Rotate;
     Eigen::Vector4d Translate;
     double Scale;
-    igl::procrustes(transformMatAppliedTo_p_i_iterK, q_j_k_homog, false,false,Scale,Rotate,Translate ); 
+    igl::procrustes(p_k, q_j_k_homog, false,false,Scale,Rotate,Translate ); 
 
     // #TODO :: assert the correctness of the update step  
     T = Rotate;
     T.col(3) += Translate;  
-	T_kPlus1 = T * T_k;  
+	Eigen::MatrixXd T_kPlus1 = T * T_k;  
 
     // CALCULATE energy_kPlus1  AND delta_energy ( for convergence tests ) 
-    Eigen::MatrixXd transformMatAppliedTo_p_i_iterKPlus1 = (p_i * T_kPlus1).rowwise() + zeroTranslate.transpose(); 
+    Eigen::MatrixXd p_kPlus1 = (p_i * T_kPlus1).rowwise() + zeroTranslate.transpose(); 
     Eigen::MatrixXd allPairDistances;
-    igl::all_pairs_distances(transformMatAppliedTo_p_i_iterKPlus1, q_j_k_homog, true, allPairDistances); 
+    igl::all_pairs_distances(p_kPlus1, q_j_k_homog, true, allPairDistances); 
     e_kPlus1 = allPairDistances.trace(); 				// #TODO :: is this a sum along the diagonal, or a sum over every single value !
 
     if ( k == 0 ) {
         delta_energy = 1000; // at this point, we have yet to calculate energy_kPlus1
     } else {
-        delta_energy = std::abs(energy_kPlus1 - energy_k );
+        delta_energy = std::abs(e_kPlus1 - e_k );
         e_k = e_kPlus1; // update energy_k for following iteration !
     }     
 
