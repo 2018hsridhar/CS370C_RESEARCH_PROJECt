@@ -1,16 +1,10 @@
-// SADLY, volume works ONLY for tetrahedral meshes :-( . so too , is face_areas.h !
-// NOT sure if I should use vector_area.h or double_area.h?? ... double area ! vector_area only inhputs FACES ( gives you a generic matrix really ) ... no vertex info thoguh !
 #include <igl/readOFF.h>
-#include <igl/readOBJ.h>
 #include <igl/viewer/Viewer.h>
 #include "tutorial_shared_path.h"
 #include <igl/rotation_matrix_from_directions.h>
-#include <igl/writeOFF.h>
-#include <igl/per_vertex_normals.h>
+#include <igl/writeOFF.h> // #include <igl/per_vertex_normals.h>
 #include <igl/point_mesh_squared_distance.h>
-#include <igl/cotmatrix.h>
-#include <igl/massmatrix.h> 
-#include <igl/doublearea.h>
+#include <igl/procrustes.h>
 
 using namespace Eigen; 
 using namespace std;
@@ -18,130 +12,157 @@ using namespace std;
 Eigen::MatrixXd V_one;
 Eigen::MatrixXi F_one;
 
-Eigen::MatrixXd V_mcf;
+Eigen::MatrixXd V_two;
+Eigen::MatrixXi F_two;
 
-Eigen::SparseMatrix<double> massMatrix_iterK ;
-Eigen::SparseMatrix<double> stiffnessMatrix_iterK ; 
-//double delta = 0.00001; clearluy, a smaller delta = more stability, but also more computaiton
-double delta = 0.001;
-int k = 0;
+Eigen::MatrixXd V_approx;
+Eigen::MatrixXi F_approx;
 
-void applyOneTimeStepOfMeanCurvatureFlow();
-bool key_down( igl::viewer::Viewer& , unsigned char , int );
-bool convertObjToOff( std::string );
-
-bool convertObjToOff( std::string fileOfInterest )
+Eigen::MatrixXd convertToHomogenousForm(const Ref<const MatrixXd>& mat )
 {
-    igl::readOBJ(TUTORIAL_SHARED_PATH "/sphere.obj", V_mcf, F_one);
-    igl::writeOFF("proper_sphere.off",V_mcf,F_one); 
+  Eigen::MatrixXd homogenoizedMatrix;
+  homogenoizedMatrix = mat.transpose().colwise().homogeneous().transpose(); 
+  return homogenoizedMatrix;
 }
 
+Eigen::MatrixXd normalizeHomogenousMatrix (const Ref<const MatrixXd>& mat )
+{
+  Eigen::MatrixXd normalizedMatrix;
+  normalizedMatrix = mat.transpose().colwise().hnormalized().transpose(); 
+  return normalizedMatrix;
+}
+
+// function is called when keyboard buttons are pressed down. useful for alternating amongst a set of differing views
 bool key_down( igl::viewer::Viewer& viewer, unsigned char key, int modifier)
 {
   std::cout << "Key : " << key << (unsigned int) key << std::endl;
-  if ( key == '1' ) {
+  if ( key == '1' )
+  {
+    // clear data before drawing mesh
     viewer.data.clear();
     viewer.data.set_mesh(V_one,F_one);
     viewer.core.align_camera_center(V_one,F_one); 
   }
-  else if ( key == '2' ) {
+  else if ( key == '2' ) 
+  {
+    // clear data before drawing mesh
     viewer.data.clear();
-	applyOneTimeStepOfMeanCurvatureFlow();
-    viewer.data.set_mesh(V_mcf,F_one);
-    viewer.core.align_camera_center(V_mcf,F_one);
+    viewer.data.set_mesh(V_two,F_two);
+    viewer.core.align_camera_center(V_two,F_two);
   } 
-  else if ( key == '3' ) {
+  else if ( key == '3' ) 
+  {
+    // clear data before drawing mesh
     viewer.data.clear();
-    V_mcf = V_one;
-    k = 0;
-    igl::cotmatrix(V_one,F_one, stiffnessMatrix_iterK );  
-    igl::MassMatrixType mcfType = igl::MASSMATRIX_TYPE_BARYCENTRIC;
-    igl::massmatrix(V_one,F_one, mcfType, massMatrix_iterK);  
-    viewer.data.set_mesh(V_one,F_one);
-    viewer.core.align_camera_center(V_mcf,F_one);
-  } 
+    viewer.data.set_mesh(V_approx,F_approx);
+    viewer.core.align_camera_center(V_approx,F_approx);
+  }
   return false;
-}
-
-void applyOneTimeStepOfMeanCurvatureFlow()
-{
-    k = 0;
-		Eigen::SparseMatrix<double> A = ( massMatrix_iterK - ( delta * stiffnessMatrix_iterK ));
-		Eigen::MatrixXd B = ( massMatrix_iterK * V_mcf); 
-	//	std::cout << " [1] Caluclated (M-delta*L) and (M*v) matrices \n";
-		// Q1 :: should I be solving for an EXACT sol ( direct method ) or APPROX sol ( iterative method ) ?? NOT SURE !! SEE NOTES for when to tell there is or is not an exact solution ! 
-		Eigen::SimplicialLLT<Eigen::SparseMatrix<double> > solver; 
-		// choice was made, since , ACCORDING to EIGEN, this was the msot basic sparse-matrix solver 
-		// PLUS cotan matrix is self-adjoint ( i believe. .. need to check ). other matrix properties do not fit here !
-		solver.compute(A); 
-		if(solver.info() != Eigen::Success) {
-			std::cout << "Decomposition of A failed." << std::endl;
-		} 
-		auto updatedMeshVertices = solver.solve(B);
-		if ( solver.info() != Eigen::Success )  {
-			std::cout << "Solving B failed." << std::endl;
-		}
-		auto newVertices = updatedMeshVertices.eval(); // what is the difference between "solve" and "eval" ???
-		if ( solver.info() != Eigen::Success )  {
-			std::cout << "Solving B (actually) failed." << std::endl;
-		}
-        
-	    //	std::cout << " [2] Passed solver tests. \n";
-
-		// update vertices, laplacian matrix, and mass matrix
-		//igl::cotmatrix(V_mcf,F_one, stiffnessMatrix_iterK );   
-		/* #TODO :: find out what is causing the error here
-		* TECHNICALLY, the stiffness matrix has to be calcualted ONLY once ! Although this too, should work !
-		* IN ADDITION, the mass matrix is also experiencing issues ... but this is only l8r !
-		*/
-		Eigen::VectorXd dbla;
-		igl::doublearea(V_mcf,F_one,dbla);
-		double oldVolume = 0.5 * dbla.sum(); 
-
-        V_mcf = newVertices;
-		igl::MassMatrixType mcfType = igl::MASSMATRIX_TYPE_BARYCENTRIC;
-		igl::massmatrix(V_mcf,F_one, mcfType, massMatrix_iterK);  
-		//std::cout << "[3] Succesfully updated mass and stiffness matrices \n";
-
-		Eigen::VectorXd dbla_new;
-		igl::doublearea(V_mcf,F_one,dbla_new);
-		double newVolume = 0.5 * dbla_new.sum(); 
-
-		V_mcf *= std::cbrt(newVolume/oldVolume); 
-
-		//std::cout << "[4] Rescaled by mesh volume / unit area \n"; 
-		k += 1;
-		//std::cout << " [5] Finished iteration "<< (k-1) << "." <<  std::endl;
 }
 
 int main(int argc, char *argv[])
 {
 
-  // PRINT OUT CRITICAL INFORMATION TO USER / DEVELOPER 
+  /***********************************************************/ 
+  // PRINT out critical information to user / developer 
+  // LOAD mesh data , in OFF format
+  /***********************************************************/ 
   std::cout << R"(
-	1 Switch to initial view
-	2 Run mean curvature based view 
-	3 Reset mean curvature based view  ( can rerun again ) 
+1 switch to identity view
+2 Switch to rotated view
+3 Switch to ICP view 
     )";
 
-  // LOAD mesh data ( OFF format )
-  //igl::readOFF(TUTORIAL_SHARED_PATH "/bunny.off", V_one, F_one); 
-  igl::readOFF(TUTORIAL_SHARED_PATH "/cow.off", V_one, F_one); 
-  //igl::readOFF(TUTORIAL_SHARED_PATH "/proper_sphere.off", V_one, F_one);  // it straight up does not work for this case !
-  V_mcf = V_one;
+  if(!igl::readOFF(TUTORIAL_SHARED_PATH "/bunny.off", V_one, F_one))
+  {
+    cout << " Failed to load mesh " << endl;
+  }
+  if(!igl::readOFF(TUTORIAL_SHARED_PATH "/dataset2.off", V_two, F_two)) // needs a better name ( idenitity mesh, goal mesh ) 
+  {
+    cout << " Failed to load mesh " << endl;
+  }
 
-  // CALCUALTE initial mass and stiffness matrices
-  igl::cotmatrix(V_one,F_one, stiffnessMatrix_iterK );  
-  igl::MassMatrixType mcfType = igl::MASSMATRIX_TYPE_BARYCENTRIC;
-  igl::massmatrix(V_one,F_one, mcfType, massMatrix_iterK);  
 
-  // PLOT initial mesh 
+  /***********************************************************/ 
+  // PREALLOCATE matrices for computation ( p_i, q, transformation_iter_k)
+  /***********************************************************/ 
+  
+  /* TODO : IS it here that I need to perform barycentric based random sampling ? */
+  Eigen::MatrixXd p_i = convertToHomogenousForm(V_one); 
+  Eigen::MatrixXd q = convertToHomogenousForm(V_two); 
+
+  int maxIters = 1000; 													// max num of iteration  #TODO find a good number of iteration points. My current approach blew up @ 100 iterations 
+  double tolerance = 1e-99; 											// accuracy threshold 
+  Eigen::MatrixXd transformMat_init = Eigen::MatrixXd::Identity(4, 4);  // initial guess 
+  Eigen::MatrixXd transformMat_iterK = transformMat_init;				// guess at iter k
+  Eigen::VectorXd hack = Eigen::Vector4d (0,0,0,0);
+  double energy = 1000; 													// energy to be minimized
+  double delta_energy = 1000; 												// delta enegy between two arbitray iterations 
+
+  int k = 0;
+  Eigen::MatrixXd transformMatAppliedTo_p_i_iterK = (p_i * transformMat_iterK).rowwise() + hack.transpose(); // #TODO :: why error here? seems to be a dumb typing thing TBH
+  Eigen::Matrix4d newTransformMatrix = Eigen::MatrixXd::Identity(4,4);
+  // #TODO :: understand how construction MatrixXd XPrime = (X*R).rowwise() + t.transpose() makes sense
+  //          in the context Eigen::MatrixXd transformMatAppliedTo_p_i_iterK = p_i; 			( => ) I have some weird type err here
+
+  /***********************************************************/ 
+  // ITERATIVELY improve rigid ICP method , for solving the transformation matrix
+  /***********************************************************/ 
+  while ( k < maxIters && delta_energy > tolerance ) 
+  {
+    // we need to create a new matrix of minimum q's !!
+    // take a row of current transformation matrix applied to  p_i, find closest q in mesh-two
+    // I need to make sure that I am passing in the correct option !
+    //  #TODO :: understand why "Ele" is needed in closest-points code ! 
+    // SADLY, this does not accomadate Homogenous coordinates
+
+    /***********************************************************/ 
+    // DISCOVER closest points in q, from transformMat_iter_k * p_i
+    /***********************************************************/ 
+    Eigen::VectorXi Ele = Eigen::VectorXi::LinSpaced(q.rows(),0,q.rows() - 1);
+    Eigen::VectorXd smallestSquaredDists;
+    Eigen::VectorXi smallestDistIndxs;
+    Eigen::MatrixXd q_j_k; 				// this coresponds to closestPointsTo_p_i_From_q ;
+    igl::point_mesh_squared_distance(normalizeHomogenousMatrix(transformMatAppliedTo_p_i_iterK),normalizeHomogenousMatrix(q),Ele,smallestSquaredDists,smallestDistIndxs,q_j_k);  
+    Eigen::MatrixXd q_j_k_homog = convertToHomogenousForm(q_j_k);
+
+    /***********************************************************/ 
+    // APPLY Procrstues to solve for T, that minimizes norm (T*p_i - q_j_k )
+    // UPDATE transformation matrix via T_k = T * T_{k-1} 
+    /***********************************************************/ 
+    Eigen::Matrix4d Rotate;
+    Eigen::Vector4d Translate;
+    double Scale;
+    igl::procrustes(transformMatAppliedTo_p_i_iterK, q_j_k_homog, false,false,Scale,Rotate,Translate ); 
+
+	/*
+		std::cout << "Analysis of rotate    " << "(" << Rotate.rows() << "," << Rotate.cols() << ")" << std::endl;
+		std::cout << "Analysis of translate " << "(" << Translate.rows() << "," << Translate.cols() << ")" << std::endl;
+		std::cout << Rotate << std::endl;
+		std::cout << Translate << std::endl;
+	*/
+
+    // #TODO :: assert the correctness of the update step  
+    newTransformMatrix = Rotate;
+    newTransformMatrix.col(3) += Translate;  
+	transformMat_iterK = newTransformMatrix * transformMat_iterK;  
+    k += 1;
+  }
+
+  /***********************************************************/ 
+  // CALCULATE the mesh based on RIGID ICP transformation 
+  /***********************************************************/ 
+  F_approx = F_one;
+  Eigen::MatrixXd rigidIcpMesh = (p_i * transformMat_iterK).rowwise() + hack.transpose(); 
+  V_approx = normalizeHomogenousMatrix(rigidIcpMesh);
+
+  /***********************************************************/ 
+  // SETUP LibIgl Viewer 
+  /***********************************************************/ 
   igl::viewer::Viewer viewer;
   viewer.callback_key_down = &key_down;
   viewer.data.set_mesh(V_one, F_one);
   viewer.launch();
-
-  return 0;
 }
 
 
@@ -150,6 +171,29 @@ int main(int argc, char *argv[])
 
 
 
-  // *********************************************************** 
-  // Q1. what asssumptions can I make about my mesh input data?? I'm pretty sure I cannot assume that they are the same size !
-  // *********************************************************** 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/***********************************************************/ 
+// #TODO :: APPROACH 2 ( using surface normals ... code this up later ) 
+//Eigen::MatrixXd meshOneVertexNormals_prime = transformMat_k * meshOneVertexNormals;
+// find intersection qi_k on surface Q, based on normal lines !
+// STEP (1) :: SELECT control points pi \in P ( i = 1..N), , compute surface normals n_pi, set initial transformation matrix T_0
+// I am very unsure? Plus there is the issue of getting normals too , from barycentric ( not sure about that too ! ) 
+/***********************************************************/ 
+
