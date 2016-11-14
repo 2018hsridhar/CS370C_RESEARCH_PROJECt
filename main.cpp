@@ -5,8 +5,9 @@
 #include <igl/writeOFF.h> // #include <igl/per_vertex_normals.h>
 #include <igl/point_mesh_squared_distance.h>
 #include <igl/procrustes.h>
+#include <igl/all_pairs_distances.h> 
 
-using namespace Eigen; 
+using namespace Eigen;  
 using namespace std;
 
 Eigen::MatrixXd V_one;
@@ -73,15 +74,12 @@ int main(int argc, char *argv[])
 3 Switch to ICP view 
     )";
 
-  if(!igl::readOFF(TUTORIAL_SHARED_PATH "/bunny.off", V_one, F_one))
-  {
+  if(!igl::readOFF(TUTORIAL_SHARED_PATH "/bunny.off", V_one, F_one)) {
     cout << " Failed to load mesh " << endl;
   }
-  if(!igl::readOFF(TUTORIAL_SHARED_PATH "/dataset2.off", V_two, F_two)) // needs a better name ( idenitity mesh, goal mesh ) 
-  {
+  if(!igl::readOFF(TUTORIAL_SHARED_PATH "/dataset2.off", V_two, F_two)) {
     cout << " Failed to load mesh " << endl;
   }
-
 
   /***********************************************************/ 
   // PREALLOCATE matrices for computation ( p_i, q, transformation_iter_k)
@@ -91,12 +89,13 @@ int main(int argc, char *argv[])
   Eigen::MatrixXd p_i = convertToHomogenousForm(V_one); 
   Eigen::MatrixXd q = convertToHomogenousForm(V_two); 
 
-  int maxIters = 1000; 													// max num of iteration  #TODO find a good number of iteration points. My current approach blew up @ 100 iterations 
-  double tolerance = 1e-99; 											// accuracy threshold 
-  Eigen::MatrixXd transformMat_init = Eigen::MatrixXd::Identity(4, 4);  // initial guess 
-  Eigen::MatrixXd transformMat_iterK = transformMat_init;				// guess at iter k
+  int maxIters = 1000; 														// max num of iteration  #TODO find a good number of iteration points. My current approach blew up @ 100 iterations 
+  double tolerance = 1e-99;	 												// accuracy threshold 
+  Eigen::MatrixXd transformMat_init = Eigen::MatrixXd::Identity(4, 4);  	// initial guess 
+  Eigen::MatrixXd transformMat_iterK = transformMat_init;					// guess at iter k
   Eigen::VectorXd hack = Eigen::Vector4d (0,0,0,0);
-  double energy = 1000; 													// energy to be minimized
+  double energy_k = 1000; 													// energy to be minimized
+  double energy_kPlus1 = 1000;											    // energy to be minimized ( #TODO :: possibly refactor this aspect ) 
   double delta_energy = 1000; 												// delta enegy between two arbitray iterations 
 
   int k = 0;
@@ -123,7 +122,7 @@ int main(int argc, char *argv[])
     Eigen::VectorXd smallestSquaredDists;
     Eigen::VectorXi smallestDistIndxs;
     Eigen::MatrixXd q_j_k; 				// this coresponds to closestPointsTo_p_i_From_q ;
-    igl::point_mesh_squared_distance(normalizeHomogenousMatrix(transformMatAppliedTo_p_i_iterK),normalizeHomogenousMatrix(q),Ele,smallestSquaredDists,smallestDistIndxs,q_j_k);  
+    igl::point_mesh_squared_distance(normalizeHomogenousMatrix(transformMatAppliedTo_p_i_iterK),normalizeHomogenousMatrix(q),Ele,smallestSquaredDists,smallestDistIndxs,q_j_k);   // note :: this is T^(k-1)! 
     Eigen::MatrixXd q_j_k_homog = convertToHomogenousForm(q_j_k);
 
     /***********************************************************/ 
@@ -135,18 +134,24 @@ int main(int argc, char *argv[])
     double Scale;
     igl::procrustes(transformMatAppliedTo_p_i_iterK, q_j_k_homog, false,false,Scale,Rotate,Translate ); 
 
-	/*
-		std::cout << "Analysis of rotate    " << "(" << Rotate.rows() << "," << Rotate.cols() << ")" << std::endl;
-		std::cout << "Analysis of translate " << "(" << Translate.rows() << "," << Translate.cols() << ")" << std::endl;
-		std::cout << Rotate << std::endl;
-		std::cout << Translate << std::endl;
-	*/
-
     // #TODO :: assert the correctness of the update step  
     newTransformMatrix = Rotate;
     newTransformMatrix.col(3) += Translate;  
 	transformMat_iterK = newTransformMatrix * transformMat_iterK;  
-    k += 1;
+
+    // CALCULATE energy_kPlus1  AND delta_energy ( for convergence tests ) 
+    Eigen::MatrixXd transformMatAppliedTo_p_i_iterKPlus1 = (p_i * transformMat_iterK).rowwise() + hack.transpose(); 
+    Eigen::MatrixXd allPairDistances;
+    igl::all_pairs_distances(transformMatAppliedTo_p_i_iterKPlus1, q_j_k_homog, true, allPairDistances); 
+    energy_kPlus1 = allPairDistances.trace(); 				// #TODO :: is this a sum along the diagonal, or a sum over every single value !
+
+    if ( k == 0 ) {
+        delta_energy = 1000; // at this point, we have yet to calculate energy_kPlus1
+    } else {
+        delta_energy = std::abs(energy_kPlus1 - energy_k );
+        energy_k = energy_kPlus1; // update energy_k for following iteration !
+    }     
+    k = k + 1;
   }
 
   /***********************************************************/ 
