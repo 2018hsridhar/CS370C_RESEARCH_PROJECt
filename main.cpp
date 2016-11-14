@@ -100,7 +100,6 @@ int main(int argc, char *argv[])
   double delta_energy = 1000; 								// delta enegy between two arbitray iterations 
 
   int k = 0;
-  Eigen::MatrixXd p_k = (p_i * T_0).rowwise() + zeroTranslate.transpose(); // #TODO :: why error here? seems to be a dumb typing thing TBH
   Eigen::Matrix4d T = Eigen::MatrixXd::Identity(4,4);
   // #TODO :: understand how construction MatrixXd XPrime = (X*R).rowwise() + t.transpose() makes sense
   //          in the context Eigen::MatrixXd transformMatAppliedTo_p_i_iterK = p_i; 			( => ) I have some weird type err here
@@ -108,28 +107,35 @@ int main(int argc, char *argv[])
   /***********************************************************/ 
   // ITERATIVELY improve rigid ICP method , for solving the transformation matrix
   /***********************************************************/ 
-  while ( k < maxIters && delta_energy > tolerance ) 
+  //while ( k < maxIters && delta_energy > tolerance ) 
+  while ( k < 20)
   {
     // we need to create a new matrix of minimum q's !!
     // take a row of current transformation matrix applied to  p_i, find closest q in mesh-two
     // I need to make sure that I am passing in the correct option !
-    //  #TODO :: understand why "Ele" is needed in closest-points code ! 
+    // #TODO :: understand why "Ele" is needed in closest-points code ! 
     // SADLY, this does not accomadate Homogenous coordinates
 
     /***********************************************************/ 
     // DISCOVER closest points in q, from p_k 
     /***********************************************************/ 
+    Eigen::MatrixXd p_k = (p_i * T_k).rowwise() + zeroTranslate.transpose(); 
+    Eigen::MatrixXd p_k_nonHomo = normalizeHomogenousMatrix(p_k);
+	Eigen::MatrixXd q_nonHomo = normalizeHomogenousMatrix(q);
     Eigen::VectorXi Ele = Eigen::VectorXi::LinSpaced(q.rows(),0,q.rows() - 1);
     Eigen::VectorXd smallestSquaredDists;
     Eigen::VectorXi smallestDistIndxs;
+
     Eigen::MatrixXd q_j_k; 				// this coresponds to closestPointsTo_p_i_From_q ;
-    igl::point_mesh_squared_distance(normalizeHomogenousMatrix(p_k),normalizeHomogenousMatrix(q),Ele,smallestSquaredDists,smallestDistIndxs,q_j_k);   // note :: this is T^(k-1)! 
+    igl::point_mesh_squared_distance(p_k_nonHomo,q_nonHomo ,Ele,smallestSquaredDists,smallestDistIndxs,q_j_k);   // note :: this is T^(k-1)! 
     Eigen::MatrixXd q_j_k_homog = convertToHomogenousForm(q_j_k);
 
     /***********************************************************/ 
-    // APPLY Procrstues to solve for T, that minimizes norm (T*p_i - q_j_k )
+    // APPLY Procrstues to solve for T , 
+    //     that minimizes norm (T*p_i - q_j_k ) = (p_k - q_j_k)
     // UPDATE transformation matrix via T_k = T * T_{k-1} 
     /***********************************************************/ 
+
     Eigen::Matrix4d Rotate;
     Eigen::Vector4d Translate;
     double Scale;
