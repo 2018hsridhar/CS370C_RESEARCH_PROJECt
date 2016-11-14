@@ -1,8 +1,10 @@
+// #TODO :: try to exploit innate properties of structures / utilize acceleration structures to quicken computation of values 
 #include <igl/readOFF.h>
 #include <igl/viewer/Viewer.h>
 #include "tutorial_shared_path.h"
 #include <igl/rotation_matrix_from_directions.h>
-#include <igl/writeOFF.h> // #include <igl/per_vertex_normals.h>
+#include <igl/writeOFF.h> 
+#include <igl/per_vertex_normals.h>
 #include <igl/point_mesh_squared_distance.h>
 #include <igl/procrustes.h>
 #include <igl/all_pairs_distances.h> 
@@ -33,7 +35,6 @@ Eigen::MatrixXd normalizeHomogenousMatrix (const Ref<const MatrixXd>& mat )
   return normalizedMatrix;
 }
 
-// function is called when keyboard buttons are pressed down. useful for alternating amongst a set of differing views
 bool key_down( igl::viewer::Viewer& viewer, unsigned char key, int modifier)
 {
   std::cout << "Key : " << key << (unsigned int) key << std::endl;
@@ -89,18 +90,18 @@ int main(int argc, char *argv[])
   Eigen::MatrixXd p_i = convertToHomogenousForm(V_one); 
   Eigen::MatrixXd q = convertToHomogenousForm(V_two); 
 
-  int maxIters = 1000; 														// max num of iteration  #TODO find a good number of iteration points. My current approach blew up @ 100 iterations 
-  double tolerance = 1e-99;	 												// accuracy threshold 
-  Eigen::MatrixXd transformMat_init = Eigen::MatrixXd::Identity(4, 4);  	// initial guess 
-  Eigen::MatrixXd transformMat_iterK = transformMat_init;					// guess at iter k
-  Eigen::VectorXd hack = Eigen::Vector4d (0,0,0,0);
-  double energy_k = 1000; 													// energy to be minimized
-  double energy_kPlus1 = 1000;											    // energy to be minimized ( #TODO :: possibly refactor this aspect ) 
-  double delta_energy = 1000; 												// delta enegy between two arbitray iterations 
+  int maxIters = 1000; 										// max num of iteration  #TODO find a good number of iteration points. My current approach blew up @ 100 iterations 
+  double tolerance = 1e-99;	 								// accuracy threshold 
+  Eigen::MatrixXd T_0 = Eigen::MatrixXd::Identity(4, 4);  	// initial guess 
+  Eigen::MatrixXd T_k = T_0;								// guess at iter k
+  Eigen::VectorXd zeroTranslate = Eigen::Vector4d (0,0,0,0);
+  double e_k = 1000; 										// energy to be minimized
+  double e_kPlus1 = 1000;								    // energy to be minimized ( #TODO :: possibly refactor this aspect ) 
+  double delta_energy = 1000; 								// delta enegy between two arbitray iterations 
 
   int k = 0;
-  Eigen::MatrixXd transformMatAppliedTo_p_i_iterK = (p_i * transformMat_iterK).rowwise() + hack.transpose(); // #TODO :: why error here? seems to be a dumb typing thing TBH
-  Eigen::Matrix4d newTransformMatrix = Eigen::MatrixXd::Identity(4,4);
+  Eigen::MatrixXd transformMatAppliedTo_p_i_iterK = (p_i * T_k).rowwise() + zeroTranslate.transpose(); // #TODO :: why error here? seems to be a dumb typing thing TBH
+  Eigen::Matrix4d T = Eigen::MatrixXd::Identity(4,4);
   // #TODO :: understand how construction MatrixXd XPrime = (X*R).rowwise() + t.transpose() makes sense
   //          in the context Eigen::MatrixXd transformMatAppliedTo_p_i_iterK = p_i; 			( => ) I have some weird type err here
 
@@ -135,22 +136,24 @@ int main(int argc, char *argv[])
     igl::procrustes(transformMatAppliedTo_p_i_iterK, q_j_k_homog, false,false,Scale,Rotate,Translate ); 
 
     // #TODO :: assert the correctness of the update step  
-    newTransformMatrix = Rotate;
-    newTransformMatrix.col(3) += Translate;  
-	transformMat_iterK = newTransformMatrix * transformMat_iterK;  
+    T = Rotate;
+    T.col(3) += Translate;  
+	T_kPlus1 = T * T_k;  
 
     // CALCULATE energy_kPlus1  AND delta_energy ( for convergence tests ) 
-    Eigen::MatrixXd transformMatAppliedTo_p_i_iterKPlus1 = (p_i * transformMat_iterK).rowwise() + hack.transpose(); 
+    Eigen::MatrixXd transformMatAppliedTo_p_i_iterKPlus1 = (p_i * T_kPlus1).rowwise() + zeroTranslate.transpose(); 
     Eigen::MatrixXd allPairDistances;
     igl::all_pairs_distances(transformMatAppliedTo_p_i_iterKPlus1, q_j_k_homog, true, allPairDistances); 
-    energy_kPlus1 = allPairDistances.trace(); 				// #TODO :: is this a sum along the diagonal, or a sum over every single value !
+    e_kPlus1 = allPairDistances.trace(); 				// #TODO :: is this a sum along the diagonal, or a sum over every single value !
 
     if ( k == 0 ) {
         delta_energy = 1000; // at this point, we have yet to calculate energy_kPlus1
     } else {
         delta_energy = std::abs(energy_kPlus1 - energy_k );
-        energy_k = energy_kPlus1; // update energy_k for following iteration !
+        e_k = e_kPlus1; // update energy_k for following iteration !
     }     
+
+    T_k = T_kPlus1;
     k = k + 1;
   }
 
@@ -158,7 +161,7 @@ int main(int argc, char *argv[])
   // CALCULATE the mesh based on RIGID ICP transformation 
   /***********************************************************/ 
   F_approx = F_one;
-  Eigen::MatrixXd rigidIcpMesh = (p_i * transformMat_iterK).rowwise() + hack.transpose(); 
+  Eigen::MatrixXd rigidIcpMesh = (p_i * T_k).rowwise() + zeroTranslate.transpose(); 
   V_approx = normalizeHomogenousMatrix(rigidIcpMesh);
 
   /***********************************************************/ 
