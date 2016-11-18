@@ -2796,5 +2796,19 @@ igl/procrustes.h
 igl/all_pairs_distances.h
 -
 
+/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/testHomogConvert.cpp
+igl/readOFF.h
+-
+igl/viewer/Viewer.h
+-
+tutorial_shared_path.h
+/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/tutorial_shared_path.h
+igl/rotation_matrix_from_directions.h
+-
+igl/writeOFF.h
+-
+igl/per_vertex_normals.h
+-
+
 /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/tutorial_shared_path.h
 

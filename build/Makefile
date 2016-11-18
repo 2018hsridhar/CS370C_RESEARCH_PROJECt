@@ -207,30 +207,6 @@ glew/fast:
 	$(MAKE) -f libigl/glew/CMakeFiles/glew.dir/build.make libigl/glew/CMakeFiles/glew.dir/build
 .PHONY : glew/fast
 
-InDeveloment.o: InDeveloment.cpp.o
-.PHONY : InDeveloment.o
-
-# target to build an object file
-InDeveloment.cpp.o:
-	$(MAKE) -f CMakeFiles/example_bin.dir/build.make CMakeFiles/example_bin.dir/InDeveloment.cpp.o
-.PHONY : InDeveloment.cpp.o
-
-InDeveloment.i: InDeveloment.cpp.i
-.PHONY : InDeveloment.i
-
-# target to preprocess a source file
-InDeveloment.cpp.i:
-	$(MAKE) -f CMakeFiles/example_bin.dir/build.make CMakeFiles/example_bin.dir/InDeveloment.cpp.i
-.PHONY : InDeveloment.cpp.i
-
-InDeveloment.s: InDeveloment.cpp.s
-.PHONY : InDeveloment.s
-
-# target to generate assembly for a file
-InDeveloment.cpp.s:
-	$(MAKE) -f CMakeFiles/example_bin.dir/build.make CMakeFiles/example_bin.dir/InDeveloment.cpp.s
-.PHONY : InDeveloment.cpp.s
-
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -296,9 +272,6 @@ help:
 	@echo "... glfw"
 	@echo "... glfw_objects"
 	@echo "... glew"
-	@echo "... InDeveloment.o"
-	@echo "... InDeveloment.i"
-	@echo "... InDeveloment.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
