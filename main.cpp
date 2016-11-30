@@ -33,16 +33,21 @@ int main(int argc, char *argv[])
     cout<<"failed to load horse Ahead stl "<<endl;
   }
 
-  // create one huge mesh containing both horse pieces ( inspired by example 407 ) 
+  // CREATE ONE HUGE MESH containing both horse pieces ( inspired by example 407 ) 
   igl::cat(1,behind.V,ahead.V,scene.V);
   igl::cat(1,behind.F, MatrixXi(ahead.F.array() + behind.V.rows()), scene.F);
+
+
+  // a
+
 
 
   /***********************************************************/ 
   // SETUP LibIgl Viewer 
   /***********************************************************/ 
   igl::viewer::Viewer viewer;
-  viewer.data.set_mesh(scene.V, scene.F); viewer.launch();
+  viewer.data.set_mesh(scene.V, scene.F); 
+  viewer.launch();
 
 
  }
