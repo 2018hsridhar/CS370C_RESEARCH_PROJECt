@@ -52,9 +52,32 @@ include CMakeFiles/example_bin.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/example_bin.dir/flags.make
 
+CMakeFiles/example_bin.dir/stoichGradDescent.cpp.o: CMakeFiles/example_bin.dir/flags.make
+CMakeFiles/example_bin.dir/stoichGradDescent.cpp.o: ../stoichGradDescent.cpp
+	$(CMAKE_COMMAND) -E cmake_progress_report /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles $(CMAKE_PROGRESS_1)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/example_bin.dir/stoichGradDescent.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/example_bin.dir/stoichGradDescent.cpp.o -c /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/stoichGradDescent.cpp
+
+CMakeFiles/example_bin.dir/stoichGradDescent.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/example_bin.dir/stoichGradDescent.cpp.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/stoichGradDescent.cpp > CMakeFiles/example_bin.dir/stoichGradDescent.cpp.i
+
+CMakeFiles/example_bin.dir/stoichGradDescent.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/example_bin.dir/stoichGradDescent.cpp.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/stoichGradDescent.cpp -o CMakeFiles/example_bin.dir/stoichGradDescent.cpp.s
+
+CMakeFiles/example_bin.dir/stoichGradDescent.cpp.o.requires:
+.PHONY : CMakeFiles/example_bin.dir/stoichGradDescent.cpp.o.requires
+
+CMakeFiles/example_bin.dir/stoichGradDescent.cpp.o.provides: CMakeFiles/example_bin.dir/stoichGradDescent.cpp.o.requires
+	$(MAKE) -f CMakeFiles/example_bin.dir/build.make CMakeFiles/example_bin.dir/stoichGradDescent.cpp.o.provides.build
+.PHONY : CMakeFiles/example_bin.dir/stoichGradDescent.cpp.o.provides
+
+CMakeFiles/example_bin.dir/stoichGradDescent.cpp.o.provides.build: CMakeFiles/example_bin.dir/stoichGradDescent.cpp.o
+
 CMakeFiles/example_bin.dir/main.cpp.o: CMakeFiles/example_bin.dir/flags.make
 CMakeFiles/example_bin.dir/main.cpp.o: ../main.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles $(CMAKE_PROGRESS_1)
+	$(CMAKE_COMMAND) -E cmake_progress_report /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles $(CMAKE_PROGRESS_2)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/example_bin.dir/main.cpp.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/example_bin.dir/main.cpp.o -c /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/main.cpp
 
@@ -77,7 +100,7 @@ CMakeFiles/example_bin.dir/main.cpp.o.provides.build: CMakeFiles/example_bin.dir
 
 CMakeFiles/example_bin.dir/testHomogConvert.cpp.o: CMakeFiles/example_bin.dir/flags.make
 CMakeFiles/example_bin.dir/testHomogConvert.cpp.o: ../testHomogConvert.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles $(CMAKE_PROGRESS_2)
+	$(CMAKE_COMMAND) -E cmake_progress_report /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles $(CMAKE_PROGRESS_3)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/example_bin.dir/testHomogConvert.cpp.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/example_bin.dir/testHomogConvert.cpp.o -c /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/testHomogConvert.cpp
 
@@ -100,12 +123,14 @@ CMakeFiles/example_bin.dir/testHomogConvert.cpp.o.provides.build: CMakeFiles/exa
 
 # Object files for target example_bin
 example_bin_OBJECTS = \
+"CMakeFiles/example_bin.dir/stoichGradDescent.cpp.o" \
 "CMakeFiles/example_bin.dir/main.cpp.o" \
 "CMakeFiles/example_bin.dir/testHomogConvert.cpp.o"
 
 # External object files for target example_bin
 example_bin_EXTERNAL_OBJECTS =
 
+example_bin: CMakeFiles/example_bin.dir/stoichGradDescent.cpp.o
 example_bin: CMakeFiles/example_bin.dir/main.cpp.o
 example_bin: CMakeFiles/example_bin.dir/testHomogConvert.cpp.o
 example_bin: CMakeFiles/example_bin.dir/build.make
@@ -128,6 +153,7 @@ example_bin: CMakeFiles/example_bin.dir/link.txt
 CMakeFiles/example_bin.dir/build: example_bin
 .PHONY : CMakeFiles/example_bin.dir/build
 
+CMakeFiles/example_bin.dir/requires: CMakeFiles/example_bin.dir/stoichGradDescent.cpp.o.requires
 CMakeFiles/example_bin.dir/requires: CMakeFiles/example_bin.dir/main.cpp.o.requires
 CMakeFiles/example_bin.dir/requires: CMakeFiles/example_bin.dir/testHomogConvert.cpp.o.requires
 .PHONY : CMakeFiles/example_bin.dir/requires

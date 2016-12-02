@@ -60,7 +60,8 @@ void applyOneTimeStepOfMcfWatertightCase();
 
 void applyOneTimeStepOfMeanCurvatureFlow();
 bool key_down( igl::viewer::Viewer& , unsigned char , int );
-bool convertObjToOff( std::string );
+bool convertObjToOff( std::string ); 
+bool convertStlToOff();
 bool findBoundaryVertices();
 
 
@@ -68,6 +69,12 @@ bool convertObjToOff( std::string fileOfInterest )
 {
     igl::readOBJ(TUTORIAL_SHARED_PATH "/sphere.obj", V_mcf, F_one);
     igl::writeOFF("proper_sphere.off",V_mcf,F_one); 
+}
+
+bool convertStlToOff()
+{
+    igl::readSTL("horseAhead.stl", V_mcf, F_one,N_one);
+    igl::writeOFF("horseAhead.off",V_mcf,F_one); 
 }
 
 bool key_down( igl::viewer::Viewer& viewer, unsigned char key, int modifier)
@@ -162,9 +169,7 @@ void applyOneTimeStepOfMcfBoundaryCase()
 */
 
 
-  
- /*
-      
+        Eigen::MatrixXd oldVertices = V_mcf;
         for(int i = 0; i < boundaryVerticesStatus.size(); i++)
         {
             if ( boundaryVerticesStatus[i] ) 
@@ -173,9 +178,8 @@ void applyOneTimeStepOfMcfBoundaryCase()
                 V_mcf.row(i) = newVertices.row(i); 
         }
         //std::cout << [3] Succesfully updated vertices \n";
-*/
 
-        V_mcf = newVertices;
+        //V_mcf = newVertices;
  		// update mass matrix
 		igl::MassMatrixType mcfType = igl::MASSMATRIX_TYPE_BARYCENTRIC;
 		igl::massmatrix(V_mcf,F_one, mcfType, massMatrix_iterK);  
@@ -242,11 +246,17 @@ int main(int argc, char *argv[])
 	3 Reset mean curvature based view  ( can rerun again ) 
     )";
 
+//	convertStlToOff();
+ //   return 0;
+
   // LOAD mesh data ( OFF format )
   //igl::readOFF(TUTORIAL_SHARED_PATH "/cow.off", V_one, F_one); 
   //igl::readOFF(TUTORIAL_SHARED_PATH "/proper_sphere.off", V_one, F_one);  // it straight up does not work for this case !
   //igl::readSTL("decimated-max.stl", V_one, F_one,N_one);  // it straight up does not work for this case !
   //igl::readOBJ(TUTORIAL_SHARED_PATH "/decimated-max.obj",V_one,F_one);
+  //igl::readOFF("horseAhead.off", V_one, F_one);  // it straight up does not work for this case !
+  //igl::readOFF(TUTORIAL_SHARED_PATH "/beetle.off",V_one,F_one); /// this finally FUCKING works 
+  igl::readOFF(TUTORIAL_SHARED_PATH "/camelhead.off",V_one,F_one);
   V_mcf = V_one; 
 
 // STL caauses issues ... OBJ and OFF formats do not ... not sure why though !

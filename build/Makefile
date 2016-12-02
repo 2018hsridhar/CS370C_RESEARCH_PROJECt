@@ -231,6 +231,30 @@ main.cpp.s:
 	$(MAKE) -f CMakeFiles/example_bin.dir/build.make CMakeFiles/example_bin.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+stoichGradDescent.o: stoichGradDescent.cpp.o
+.PHONY : stoichGradDescent.o
+
+# target to build an object file
+stoichGradDescent.cpp.o:
+	$(MAKE) -f CMakeFiles/example_bin.dir/build.make CMakeFiles/example_bin.dir/stoichGradDescent.cpp.o
+.PHONY : stoichGradDescent.cpp.o
+
+stoichGradDescent.i: stoichGradDescent.cpp.i
+.PHONY : stoichGradDescent.i
+
+# target to preprocess a source file
+stoichGradDescent.cpp.i:
+	$(MAKE) -f CMakeFiles/example_bin.dir/build.make CMakeFiles/example_bin.dir/stoichGradDescent.cpp.i
+.PHONY : stoichGradDescent.cpp.i
+
+stoichGradDescent.s: stoichGradDescent.cpp.s
+.PHONY : stoichGradDescent.s
+
+# target to generate assembly for a file
+stoichGradDescent.cpp.s:
+	$(MAKE) -f CMakeFiles/example_bin.dir/build.make CMakeFiles/example_bin.dir/stoichGradDescent.cpp.s
+.PHONY : stoichGradDescent.cpp.s
+
 testHomogConvert.o: testHomogConvert.cpp.o
 .PHONY : testHomogConvert.o
 
@@ -275,6 +299,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... stoichGradDescent.o"
+	@echo "... stoichGradDescent.i"
+	@echo "... stoichGradDescent.s"
 	@echo "... testHomogConvert.o"
 	@echo "... testHomogConvert.i"
 	@echo "... testHomogConvert.s"
