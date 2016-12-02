@@ -6,6 +6,7 @@
 // SADLY, volume works ONLY for tetrahedral meshes :-( . so too , is face_areas.h !
 // NOT sure if I should use vector_area.h or double_area.h?? ... double area ! vector_area only inhputs FACES ( gives you a generic matrix really ) ... no vertex info thoguh !
 #include <igl/readSTL.h>
+#include <igl/writeSTL.h>
 #include <igl/readOFF.h>
 #include <igl/readOBJ.h>
 #include <igl/viewer/Viewer.h>
@@ -17,6 +18,21 @@
 #include <igl/cotmatrix.h>
 #include <igl/massmatrix.h> 
 #include <igl/doublearea.h>
+
+
+// some new files to include 
+#include <igl/exterior_edges.h> // used to solve for set of all edges  ( this nmight get boundary edges  ?? )
+#include <igl/edges.h> // used to solve for set of all edges 
+#include <igl/is_boundary_edge.h> 
+#include <igl/on_boundary.h> 
+#include <igl/is_border_vertex.h>
+#include <set>
+
+// note :: ability to take dot product, remove duplicate (V,E) is available ! 
+// can project-unprojection be used for calculating offset surface ( parallel case ? ) 
+ /// open vs closed boundary ... need to check this out a bit !
+
+
 
 using namespace Eigen; 
 using namespace std;
@@ -33,9 +49,14 @@ Eigen::SparseMatrix<double> stiffnessMatrix_iterK ;
 double delta = 0.001;
 int k = 0;
 
+void applyOneTimeStepOfMcfBoundaryCase();
+void applyOneTimeStepOfMcfWatertightCase();
+
 void applyOneTimeStepOfMeanCurvatureFlow();
 bool key_down( igl::viewer::Viewer& , unsigned char , int );
 bool convertObjToOff( std::string );
+bool findBoundaryVertices();
+
 
 bool convertObjToOff( std::string fileOfInterest )
 {
@@ -53,12 +74,13 @@ bool key_down( igl::viewer::Viewer& viewer, unsigned char key, int modifier)
   }
   else if ( key == '2' ) {
     viewer.data.clear();
-	applyOneTimeStepOfMeanCurvatureFlow();
+	//applyOneTimeStepOfMeanCurvatureFlow();
+	applyOneTimeStepOfMcfBoundaryCase();
     viewer.data.set_mesh(V_mcf,F_one);
     viewer.core.align_camera_center(V_mcf,F_one);
-    std::string output_of_mesh = "meanCurvaureFlowOutput[" + std::to_string(k) + "].off";
+    std::string output_of_mesh = "meanCurvaureFlowOutput[" + std::to_string(k) + "].stl";
     std::cout << "WRITING MCF data for iteration [" << std::to_string(k) << " ].\n"; 
-    igl::writeOFF(output_of_mesh, V_mcf, F_one);
+    igl::writeSTL(output_of_mesh, V_mcf, F_one);
   } 
   else if ( key == '3' ) {
     viewer.data.clear();
@@ -71,6 +93,66 @@ bool key_down( igl::viewer::Viewer& viewer, unsigned char key, int modifier)
     viewer.core.align_camera_center(V_mcf,F_one);
   } 
   return false;
+}
+
+void applyOneTimeStepOfMcfBoundaryCase()
+{
+        Eigen::SparseMatrix<double> A = ( massMatrix_iterK - ( delta * stiffnessMatrix_iterK ));
+		Eigen::MatrixXd B = ( massMatrix_iterK * V_mcf); 
+	//	std::cout << " [1] Caluclated (M-delta*L) and (M*v) matrices \n";
+		// Q1 :: should I be solving for an EXACT sol ( direct method ) or APPROX sol ( iterative method ) ?? NOT SURE !! SEE NOTES for when to tell there is or is not an exact solution ! 
+		Eigen::SimplicialLLT<Eigen::SparseMatrix<double> > solver; 
+		// choice was made, since , ACCORDING to EIGEN, this was the msot basic sparse-matrix solver 
+		// PLUS cotan matrix is self-adjoint ( i believe. .. need to check ). other matrix properties do not fit here !
+		solver.compute(A); 
+		if(solver.info() != Eigen::Success) {
+			std::cout << "Decomposition of A failed." << std::endl;
+		} 
+		auto updatedMeshVertices = solver.solve(B);
+		if ( solver.info() != Eigen::Success )  {
+			std::cout << "Solving B failed." << std::endl;
+		}
+		auto newVertices = updatedMeshVertices.eval(); // what is the difference between "solve" and "eval" ???
+		if ( solver.info() != Eigen::Success )  {
+			std::cout << "Solving B (actually) failed." << std::endl;
+		}
+        
+	    //	std::cout << " [2] Passed solver tests. \n";
+
+		// update vertices ( coefficent vector ) 
+        std::vector<bool> boundaryVerticesStatus = igl::is_border_vertex(V_mcf, F_one);  // libigl must be thinking that the entire surface is a boundary :-(. need edge detection based approach ( or something else !) 
+        //std::vector<int> boundaryVerticesIndexes = igl::boundary_loop(F_one); 
+       // [0] solve for boundary vertices of object, and rewrite those @ end. ignore them in curent analysis !
+		// NOTE :: we still keep same dim for Mass-Stiffness matrices; we'll just update coeffs l8r 
+        Eigen::MatrixXd oldVertices = V_mcf;
+
+        int boundaryCount = 0;	
+		for (auto i: boundaryVerticesStatus)
+        {
+  			//std::cout << i << ' ';
+            if ( i == true)
+                boundaryCount++;
+        }
+        std::cout << " num boundary vertices = " << boundaryCount << std::endl;
+        std::cout << " total num vertices = " << V_mcf.rows() << std::endl;
+		boundaryCount = 0;
+      
+        for(int i = 0; i < boundaryVerticesStatus.size(); i++)
+        {
+            if ( boundaryVerticesStatus[i] ) 
+                V_mcf.row(i) = oldVertices.row(i);
+            else
+                V_mcf.row(i) = newVertices.row(i); 
+        }
+        //std::cout << [3] Succesfully updated vertices \n";
+
+ 		// update mass matrix
+		igl::MassMatrixType mcfType = igl::MASSMATRIX_TYPE_BARYCENTRIC;
+		igl::massmatrix(V_mcf,F_one, mcfType, massMatrix_iterK);  
+		//std::cout << "[3] Succesfully updated mass matrix \n";
+
+		k += 1;
+		//std::cout << " [5] Finished iteration "<< (k-1) << "." <<  std::endl;
 }
 
 void applyOneTimeStepOfMeanCurvatureFlow()
@@ -132,9 +214,9 @@ int main(int argc, char *argv[])
 
   // LOAD mesh data ( OFF format )
   //igl::readOFF(TUTORIAL_SHARED_PATH "/bunny.off", V_one, F_one); 
-  igl::readOFF(TUTORIAL_SHARED_PATH "/cow.off", V_one, F_one); 
+  //igl::readOFF(TUTORIAL_SHARED_PATH "/cow.off", V_one, F_one); 
   //igl::readOFF(TUTORIAL_SHARED_PATH "/proper_sphere.off", V_one, F_one);  // it straight up does not work for this case !
-  // igl::readSTL("horseBehind.stl",V_one,F_one,N_one); ... MCF does not work for a partial scan ... needs to be a surface !
+  igl::readSTL("horseAhead.stl",V_one,F_one,N_one); 
   V_mcf = V_one;
 
   // CALCUALTE initial mass and stiffness matrices

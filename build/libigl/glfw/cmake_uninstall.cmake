@@ -1,9 +1,9 @@
 
-if (NOT EXISTS "/u/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/libigl/glfw/install_manifest.txt")
-  message(FATAL_ERROR "Cannot find install manifest: \"/u/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/libigl/glfw/install_manifest.txt\"")
+if (NOT EXISTS "/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/libigl/glfw/install_manifest.txt")
+  message(FATAL_ERROR "Cannot find install manifest: \"/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/libigl/glfw/install_manifest.txt\"")
 endif()
 
-file(READ "/u/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/libigl/glfw/install_manifest.txt" files)
+file(READ "/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/libigl/glfw/install_manifest.txt" files)
 string(REGEX REPLACE "\n" ";" files "${files}")
 
 foreach (file ${files})

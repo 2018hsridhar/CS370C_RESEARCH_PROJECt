@@ -14,7 +14,7 @@ SET(CMAKE_TARGET_LINKED_INFO_FILES
 
 # The include file search paths:
 SET(CMAKE_C_TARGET_INCLUDE_PATH
-  "/u/hari2018/CS370C/LIBS/libigl/external/nanogui/ext/glfw/src"
+  "/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/external/nanogui/ext/glfw/src"
   "libigl/glfw/src"
   )
 SET(CMAKE_CXX_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})
