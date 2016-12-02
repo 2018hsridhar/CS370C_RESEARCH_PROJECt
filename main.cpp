@@ -6,9 +6,10 @@
 // SADLY, volume works ONLY for tetrahedral meshes :-( . so too , is face_areas.h !
 // NOT sure if I should use vector_area.h or double_area.h?? ... double area ! vector_area only inhputs FACES ( gives you a generic matrix really ) ... no vertex info thoguh !
 #include <igl/readSTL.h>
-#include <igl/writeSTL.h>
 #include <igl/readOFF.h>
 #include <igl/readOBJ.h>
+
+#include <igl/writeSTL.h>
 #include <igl/viewer/Viewer.h>
 #include "tutorial_shared_path.h"
 #include <igl/rotation_matrix_from_directions.h>
@@ -24,8 +25,13 @@
 #include <igl/exterior_edges.h> // used to solve for set of all edges  ( this nmight get boundary edges  ?? )
 #include <igl/edges.h> // used to solve for set of all edges 
 #include <igl/is_boundary_edge.h> 
+
+
+// mostly vertex stuff ( boundary vertices ... may or may not be used )  
 #include <igl/on_boundary.h> 
 #include <igl/is_border_vertex.h>
+
+ // general set operations 
 #include <set>
 
 // note :: ability to take dot product, remove duplicate (V,E) is available ! 
@@ -120,13 +126,22 @@ void applyOneTimeStepOfMcfBoundaryCase()
 	    //	std::cout << " [2] Passed solver tests. \n";
 
 		// update vertices ( coefficent vector ) 
-        std::vector<bool> boundaryVerticesStatus = igl::is_border_vertex(V_mcf, F_one);  // libigl must be thinking that the entire surface is a boundary :-(. need edge detection based approach ( or something else !) 
         //std::vector<int> boundaryVerticesIndexes = igl::boundary_loop(F_one); 
        // [0] solve for boundary vertices of object, and rewrite those @ end. ignore them in curent analysis !
 		// NOTE :: we still keep same dim for Mass-Stiffness matrices; we'll just update coeffs l8r 
-        Eigen::MatrixXd oldVertices = V_mcf;
+
+ /// let us quicklyu assert that "boundaryEdges-edges" actually makes sense !
+
+		Eigen::MatrixXi boundaryEdges;
+		Eigen::MatrixXi edges;
+        igl::exterior_edges(F_one,boundaryEdges);
+        igl::edges(F_one, edges);
+
+        std::cout << "num boundary edges = " << boundaryEdges.rows() << std::endl;
+        std::cout << "total number edges = " << edges.rows() << std::endl;
 
         int boundaryCount = 0;	
+        std::vector<bool> boundaryVerticesStatus = igl::is_border_vertex(V_mcf, F_one);  
 		for (auto i: boundaryVerticesStatus)
         {
   			//std::cout << i << ' ';
@@ -136,6 +151,19 @@ void applyOneTimeStepOfMcfBoundaryCase()
         std::cout << " num boundary vertices = " << boundaryCount << std::endl;
         std::cout << " total num vertices = " << V_mcf.rows() << std::endl;
 		boundaryCount = 0;
+
+        // loop over boundary edges, add vertices ( even if duplicates ) to boundary vertices
+/*
+        for(int i = 0; i < boundaryEdges.rows(); i++)
+        {
+            VectorXd tip = V_mcf.row(boundaryEdges(i,0));
+            VectorXd tail = V_mcf.row(boundaryEdges(i,1));
+        }
+*/
+
+
+  
+ /*
       
         for(int i = 0; i < boundaryVerticesStatus.size(); i++)
         {
@@ -145,7 +173,9 @@ void applyOneTimeStepOfMcfBoundaryCase()
                 V_mcf.row(i) = newVertices.row(i); 
         }
         //std::cout << [3] Succesfully updated vertices \n";
+*/
 
+        V_mcf = newVertices;
  		// update mass matrix
 		igl::MassMatrixType mcfType = igl::MASSMATRIX_TYPE_BARYCENTRIC;
 		igl::massmatrix(V_mcf,F_one, mcfType, massMatrix_iterK);  
@@ -213,11 +243,13 @@ int main(int argc, char *argv[])
     )";
 
   // LOAD mesh data ( OFF format )
-  //igl::readOFF(TUTORIAL_SHARED_PATH "/bunny.off", V_one, F_one); 
   //igl::readOFF(TUTORIAL_SHARED_PATH "/cow.off", V_one, F_one); 
   //igl::readOFF(TUTORIAL_SHARED_PATH "/proper_sphere.off", V_one, F_one);  // it straight up does not work for this case !
-  igl::readSTL("horseAhead.stl",V_one,F_one,N_one); 
-  V_mcf = V_one;
+  //igl::readSTL("decimated-max.stl", V_one, F_one,N_one);  // it straight up does not work for this case !
+  //igl::readOBJ(TUTORIAL_SHARED_PATH "/decimated-max.obj",V_one,F_one);
+  V_mcf = V_one; 
+
+// STL caauses issues ... OBJ and OFF formats do not ... not sure why though !
 
   // CALCUALTE initial mass and stiffness matrices
   igl::cotmatrix(V_one,F_one, stiffnessMatrix_iterK );  

@@ -3125,11 +3125,11 @@ writeSTL.cpp
 /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/main.cpp
 igl/readSTL.h
 -
-igl/writeSTL.h
--
 igl/readOFF.h
 -
 igl/readOBJ.h
+-
+igl/writeSTL.h
 -
 igl/viewer/Viewer.h
 -

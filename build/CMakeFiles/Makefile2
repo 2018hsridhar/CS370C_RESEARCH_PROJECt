@@ -59,8 +59,8 @@ CMAKE_BINARY_DIR = /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370
 # Target rules for target CMakeFiles/example_bin.dir
 
 # All Build rule for target.
-CMakeFiles/example_bin.dir/all: libigl/glfw/src/CMakeFiles/glfw.dir/all
 CMakeFiles/example_bin.dir/all: libigl/glew/CMakeFiles/glew.dir/all
+CMakeFiles/example_bin.dir/all: libigl/glfw/src/CMakeFiles/glfw.dir/all
 	$(MAKE) -f CMakeFiles/example_bin.dir/build.make CMakeFiles/example_bin.dir/depend
 	$(MAKE) -f CMakeFiles/example_bin.dir/build.make CMakeFiles/example_bin.dir/build
 	$(CMAKE_COMMAND) -E cmake_progress_report /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles  1 2
