@@ -1,4 +1,4 @@
-# Install script for directory: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake
+# Install script for directory: /u/hari2018/CS370C/LIBS/libigl/shared/cmake
 
 # Set the install prefix
 IF(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -34,8 +34,8 @@ ENDIF(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
 
 IF(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  INCLUDE("/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/libigl/glfw/cmake_install.cmake")
-  INCLUDE("/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/libigl/glew/cmake_install.cmake")
+  INCLUDE("/u/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/libigl/glfw/cmake_install.cmake")
+  INCLUDE("/u/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/libigl/glew/cmake_install.cmake")
 
 ENDIF(NOT CMAKE_INSTALL_LOCAL_ONLY)
 

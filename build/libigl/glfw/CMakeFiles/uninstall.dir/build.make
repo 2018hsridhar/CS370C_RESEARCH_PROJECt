@@ -38,10 +38,10 @@ EQUALS = =
 CMAKE_EDIT_COMMAND = /usr/bin/ccmake
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt
+CMAKE_SOURCE_DIR = /u/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build
+CMAKE_BINARY_DIR = /u/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build
 
 # Utility rule file for uninstall.
 
@@ -49,7 +49,7 @@ CMAKE_BINARY_DIR = /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370
 include libigl/glfw/CMakeFiles/uninstall.dir/progress.make
 
 libigl/glfw/CMakeFiles/uninstall:
-	cd /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/libigl/glfw && /usr/bin/cmake -P /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/libigl/glfw/cmake_uninstall.cmake
+	cd /u/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/libigl/glfw && /usr/bin/cmake -P /u/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/libigl/glfw/cmake_uninstall.cmake
 
 uninstall: libigl/glfw/CMakeFiles/uninstall
 uninstall: libigl/glfw/CMakeFiles/uninstall.dir/build.make
@@ -60,10 +60,10 @@ libigl/glfw/CMakeFiles/uninstall.dir/build: uninstall
 .PHONY : libigl/glfw/CMakeFiles/uninstall.dir/build
 
 libigl/glfw/CMakeFiles/uninstall.dir/clean:
-	cd /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/libigl/glfw && $(CMAKE_COMMAND) -P CMakeFiles/uninstall.dir/cmake_clean.cmake
+	cd /u/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/libigl/glfw && $(CMAKE_COMMAND) -P CMakeFiles/uninstall.dir/cmake_clean.cmake
 .PHONY : libigl/glfw/CMakeFiles/uninstall.dir/clean
 
 libigl/glfw/CMakeFiles/uninstall.dir/depend:
-	cd /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/external/nanogui/ext/glfw /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/libigl/glfw /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/libigl/glfw/CMakeFiles/uninstall.dir/DependInfo.cmake --color=$(COLOR)
+	cd /u/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /u/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt /u/hari2018/CS370C/LIBS/libigl/external/nanogui/ext/glfw /u/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build /u/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/libigl/glfw /u/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/libigl/glfw/CMakeFiles/uninstall.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : libigl/glfw/CMakeFiles/uninstall.dir/depend
 

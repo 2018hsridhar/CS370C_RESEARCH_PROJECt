@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/external/nanogui/ext/glew/include/GL/glew.h
+/u/hari2018/CS370C/LIBS/libigl/external/nanogui/ext/glew/include/GL/glew.h
 stddef.h
 -
 inttypes.h
@@ -22,7 +22,7 @@ OpenGL/glu.h
 GL/glu.h
 -
 
-/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/external/nanogui/ext/glew/include/GL/glxew.h
+/u/hari2018/CS370C/LIBS/libigl/external/nanogui/ext/glew/include/GL/glxew.h
 X11/Xlib.h
 -
 X11/Xutil.h
@@ -32,11 +32,11 @@ X11/Xmd.h
 GL/glew.h
 -
 
-/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/external/nanogui/ext/glew/include/GL/wglew.h
+/u/hari2018/CS370C/LIBS/libigl/external/nanogui/ext/glew/include/GL/wglew.h
 windows.h
 -
 
-/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/external/nanogui/ext/glew/src/glew.c
+/u/hari2018/CS370C/LIBS/libigl/external/nanogui/ext/glew/src/glew.c
 GL/glew.h
 -
 GL/wglew.h

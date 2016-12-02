@@ -1,4 +1,4 @@
-# Install script for directory: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/external/nanogui/ext/glew
+# Install script for directory: /u/hari2018/CS370C/LIBS/libigl/external/nanogui/ext/glew
 
 # Set the install prefix
 IF(NOT DEFINED CMAKE_INSTALL_PREFIX)
