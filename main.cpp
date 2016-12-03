@@ -1,75 +1,109 @@
+#include <igl/readOBJ.h>
 #include <igl/readOFF.h>
+#include <igl/readPLY.h>
+#include <igl/readSTL.h>
 #include <igl/viewer/Viewer.h>
 #include "tutorial_shared_path.h"
-#include <igl/rotation_matrix_from_directions.h>
 #include <igl/writeOFF.h>
+#include <igl/writePLY.h>
+#include <igl/cat.h> // used to help concatenate sets of vertices, edges, normals ( matrices in general ... MATLAB-func based )
+#include <igl/exterior_edges.h> // used to solve for set of all edges  ( this nmight get boundary edges  ?? )
+#include <igl/edges.h> // used to solve for set of all edges 
+// note :: do not use "all_edges" ... this gets u directed case ( I think ?? not sure ) 
+#include <igl/is_boundary_edge.h> 
+#include <igl/on_boundary.h> 
 
-Eigen::MatrixXd V;
-Eigen::MatrixXi F;
+// include files for code , from project Tiling 
+/*
+#include "tiling/SliceStack.h" // I believe it has too be this format. I cannot just to "SliceStack.h" directly, though 
+#include "tiling/SliceStack.cpp" // not correct #TODO fix linking s.t. files can be included properly 
+#include "tiling/curvatureFlow.h"
+#include "tiling/glob_defs.h"
+#include "tiling/offsetSurface.h"
+#include "tiling/viewTetMesh.h"
+#include "tiling/Helpers.h"
+*/
 
-Eigen::MatrixXd V_rotated;
-Eigen::MatrixXi F_rotated;
+using namespace Eigen;  
+using namespace std;
+using namespace igl;
 
-// function is called when keyboard buttons are pressed down. useful for alternating amongst a set of differing views
-bool key_down( igl::viewer::Viewer& viewer, unsigned char key, int modifier)
+struct Mesh
 {
-  std::cout << "Key : " << key << (unsigned int) key << std::endl;
-  if ( key == '1' )
-  {
-    // clear data before drawing mesh
-    viewer.data.clear();
-    viewer.data.set_mesh(V,F);
-    viewer.core.align_camera_center(V,F); // why is this needed?
-  }
-  else if ( key == '2' ) 
-  {
-    // clear data before drawing mesh
-    viewer.data.clear();
-    viewer.data.set_mesh(V_rotated,F_rotated);
-    viewer.core.align_camera_center(V_rotated,F_rotated); // why is this needed?
-  } 
-  else if ( key == '3' ) 
-  {
-    viewer.data.clear();
-    viewer.data.set_mesh(V_rotated,F_rotated);
-    viewer.core.align_camera_center(V_rotated,F_rotated); // why is this needed?
-    
-  }
-  return false;
-}
+  Eigen::MatrixXd V,U,N,UV; // really, N, UV are very useless @
+  Eigen::MatrixXi T,F;
+  Eigen::MatrixXi E; // (Ex2) dimensinoal matrix of all edges of a particular mesh
+  Eigen::MatrixXd O; // (O) not sure, but it is needed for tetraHedralize Slice method in "tiling" . what data must go in? not sure !
+} ahead,behind,scene;
+
+
+//void convertFromObjToPly(std::string);
 
 int main(int argc, char *argv[])
 {
-  // Load a mesh in OFF format
-  igl::readOFF(TUTORIAL_SHARED_PATH "/camelhead.off", V, F);
-  std::cout << R"(
-1 switch to identity view
-2 Switch to rotated view 1
-3 Keep updating rotated view by (1) 
-    )";
+  if(!readOFF(TUTORIAL_SHARED_PATH "/camelhead.off",behind.V,behind.F))
+  {
+    cout<<"failed to load horse Behind stl "<<endl;
+  } 
+  if(!readOFF(TUTORIAL_SHARED_PATH "/camelhead2.off",ahead.V,ahead.F))
+  {
+    cout<<"failed to load horse Ahead stl "<<endl;
+  }
 
-  // generate rotation along x-axis ( multiply -z * y ) 
-  Eigen::Vector3d e1 ( 0, 0, -1 ); 
-  Eigen::Vector3d e2 ( 0, 1, 0 ); 
 
-  // one particular issue atm :: this rotation always works by 90-degree angles !!
-  Eigen::MatrixXd rot_matrix = igl::rotation_matrix_from_directions (e1, e2 );
-  Eigen::MatrixXd transformMat = (rot_matrix * rot_matrix);
-  Eigen::RowVectorXd translate_yaxis = Eigen::RowVector3d(0,0,-2); // neds to be a row vector !
+// keep boundary vertices fixed !! ...  
 
-  //V_rotated = V * transformMat;
-  V_rotated = (V*transformMat).rowwise() + translate_yaxis;
+  // CREATE ONE HUGE MESH containing both horse pieces ( inspired by example 407 ) 
+  igl::cat(1,behind.V,ahead.V,scene.V);
+  igl::cat(1,behind.F, MatrixXi(ahead.F.array() + behind.V.rows()), scene.F);
 
-  F_rotated = F; 
-  igl::writeOFF("camelhead2.off", V_rotated,F_rotated);
 
-  // Plot the ROTATED mesh 
+  // discover boundary, by simply going over ever edge with just one adjacent face only ! 
+/*
+  igl::exterior_edges(behind.F, behind.E);  
+  igl::exterior_edges(ahead.F, ahead.E);  
+
+  // create Slice Stack
+  // generate the enclosing bounding box for the two mesh manifolds/partial scan
+  //     - this is automatically created from SliceStack constructor 
+  std::string objectName = "toSolveForInterpSurfaceMesh";
+  std::string pathToSlices = "/u/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/partial_scans";
+
+  SliceStack ss(pathToSlices.c_str(), objectName.c_str());
+
+
+  Eigen::MatrixXd TV;
+  Eigen::MatrixXd TF;
+  Eigen::MatrixXi TT; // not sure ( tetrahedrals, I believe ... not the same as vertices | faces, i think ... unsure ) 
+  Eigen::MatrixXi TO; // not sure ( original markers ... what do they represent ) ? 
+*/
+
+  // and tetrahedralize the common surface
+
+/*
+  SliceStack::tetrahedralizeSlice( 
+      behind.V, behind.F,
+      ahead.V, ahead.F,
+      behind.O, ahead.O,
+      TV,TT,TF,TO);
+*/
+
+  // generate a set of "pseudo"-temperature values for each vertex, via [ heat-flow ] 
+  int slice_no = 0; // huh?   what does this do, exactly? 
+  Eigen::VectorXd Temperatures;
+  //SliceStack::computeLaplace(slice_no,TV,TF,TT,TO,Temperatures);
+   
+  
+
+
+
+
+  /***********************************************************/ 
+  // SETUP LibIgl Viewer 
+  /***********************************************************/ 
   igl::viewer::Viewer viewer;
-  viewer.callback_key_down = &key_down;
-  viewer.data.set_mesh(V, F);
+  viewer.data.set_mesh(scene.V, scene.F); 
   viewer.launch();
 
 
-}
-
-
+ }
