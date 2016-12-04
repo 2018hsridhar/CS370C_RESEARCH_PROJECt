@@ -285,8 +285,6 @@ CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/l
 CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/SortableRow.h
 CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/adjacency_list.cpp
 CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/adjacency_list.h
-CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/adjacency_matrix.cpp
-CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/adjacency_matrix.h
 CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/all_edges.cpp
 CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/all_edges.h
 CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/axis_angle_to_quat.cpp
@@ -316,8 +314,6 @@ CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/l
 CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/doublearea.h
 CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/edge_lengths.cpp
 CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/edge_lengths.h
-CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/edges.cpp
-CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/edges.h
 CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/exterior_edges.cpp
 CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/exterior_edges.h
 CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/face_areas.cpp
@@ -443,8 +439,6 @@ CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/l
 CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/unproject.cpp
 CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/unproject.h
 CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/verbose.h
-CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/vertex_triangle_adjacency.cpp
-CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/vertex_triangle_adjacency.h
 CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/viewer/OpenGL_shader.cpp
 CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/viewer/OpenGL_shader.h
 CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/viewer/OpenGL_state.cpp

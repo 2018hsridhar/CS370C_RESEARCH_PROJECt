@@ -1,0 +1,31 @@
+#include <igl/readOFF.h>
+#include <igl/viewer/Viewer.h>
+#include "tutorial_shared_path.h"
+#include <igl/rotation_matrix_from_directions.h>
+#include <igl/writeOFF.h>
+
+Eigen::MatrixXd V;
+Eigen::MatrixXi F;
+
+Eigen::MatrixXd V_rotated;
+Eigen::MatrixXi F_rotated;
+
+int main(int argc, char *argv[])
+{
+  // Load a mesh in OFF format
+  igl::readOFF(TUTORIAL_SHARED_PATH "/planexy.off", V, F);
+  std::cout << R"(
+1 switch to identity view
+2 Switch to rotated view 1
+3 Keep updating rotated view by (1) 
+    )";
+
+  // Plot the ROTATED mesh 
+  igl::viewer::Viewer viewer;
+  viewer.data.set_mesh(V, F);
+  viewer.launch();
+
+
+}
+
+
