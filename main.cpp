@@ -227,24 +227,25 @@ int main(int argc, char *argv[])
   j = 0;
   for ( int i = 0; i < numBoundaryVerticesScan1; i++)
   {
-    Eigen::MatrixXd scan1CurrentPoint = boundaryVertices_scan1.row(i);  
-    // note :: you are always closest to yoursefl ... this won't make sense ! take teh 2nd one  
-  	igl::point_mesh_squared_distance(scan1CurrentPoint,boundaryVertices_scan1,
-                                    	Ele_Scan1,
-										smallestSquaredDists_Scan1,smallestDistIndxs_Scan1,
-										closestBoundaryPointIn_Scan1);
-
-    // construct face data ... output to file
-
-	set<int>::iterator iter = boundaryVerticesIdxs_scan1.find(i);
+    set<int>::iterator iter = boundaryVerticesIdxs_scan1.find(i);
     int setint;
 	if (iter != boundaryVerticesIdxs_scan1.end()) {
 		setint = *iter;
 	}
     int scan1_boundaryPoint = setint;
 
-    int scan2_closestPoint = smallestDistIndxs(i,0) + scan1.V.rows(); // needs to be fixed ( how though? IDK ) 
-    int scan1_closestPoint = smallestDistIndxs_Scan1(0,0); 
+    Eigen::MatrixXd scan1CurrentPoint = boundaryVertices_scan1.row(i);  
+    // note :: you are always closest to yoursefl ... this won't make sense ! take teh 2nd one  
+    Eigen::MatrixXd dummyVertices = Eigen::MatrixXd::Zero(numBoundaryVerticesScan1,3);  
+    dummyVertices.row(scan1_boundaryPoint) = Eigen::Vector3d(10000,100000,100000);
+  	igl::point_mesh_squared_distance(scan1CurrentPoint,dummyVertices,
+                                    	Ele_Scan1,
+										smallestSquaredDists_Scan1,smallestDistIndxs_Scan1,
+										closestBoundaryPointIn_Scan1);
+
+    // construct face data ... output to file
+    int scan2_closestPoint = smallestDistIndxs(i,0) + scan1.V.rows(); 
+    int scan1_closestPoint = smallestDistIndxs_Scan1(0,0); // needs to be fixed ( how though? IDK ) 
     Eigen::VectorXi newFace = Eigen::Vector3i( scan1_boundaryPoint, scan1_closestPoint, scan2_closestPoint);
 	(interpolatedSurface.F).row(j) = newFace.transpose();
     j++; 
@@ -263,7 +264,7 @@ int main(int argc, char *argv[])
         // also :: thsi really shouldn't do anything, when i think about it !
 
   igl::cat(1,scan1.F, MatrixXi(scan2.F.array() + scan1.V.rows()), scans.F);
-  igl::cat(1,scans.F, MatrixXi(interpolatedSurface.F.array() + scan1.V.rows() + scan2.V.rows()), scene.F);
+  igl::cat(1,scans.F, interpolatedSurface.F, scene.F);
 
   /***********************************************************/ 
   // SETUP LibIgl Viewer 
