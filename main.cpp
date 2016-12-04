@@ -18,6 +18,9 @@
 #include <igl/is_border_vertex.h>
 #include <set> 
 
+#include <algorithm>
+#include <iterator> // ostream_iterator
+
 // include files for code , from project Tiling 
 /*
 #include "tiling/SliceStack.h" // I believe it has too be this format. I cannot just to "SliceStack.h" directly, though 
@@ -46,7 +49,7 @@ int main(int argc, char *argv[])
   //if(!readOFF(TUTORIAL_SHARED_PATH "/camelhead.off",scan1.V,scan1.F))
   if(!readOFF(TUTORIAL_SHARED_PATH "/planexy.off",scan1.V,scan1.F))
   {
-    cout<<"failed to load parital scan one "<<endl;
+    cout<<"failed to load partial scan one "<<endl;
   } 
   //if(!readOFF(TUTORIAL_SHARED_PATH "/camelhead2.off",scan2.V,scan2.F))
   if(!readOFF(TUTORIAL_SHARED_PATH "/planexy2.off",scan2.V,scan2.F))
@@ -66,7 +69,18 @@ int main(int argc, char *argv[])
   std::vector<bool> boundaryVerticesStatus_scan1 = igl::is_border_vertex(scan1.V, scan1.F);  
   std::vector<bool> boundaryVerticesStatus_scan2 = igl::is_border_vertex(scan2.V, scan2.F);  
 
-// this portion is not needed in the code ... its just useful for collecting statistics 
+/*
+    MY SANITY CHECK for boolean vector of boundary vertex status  ... this makes sense to me 
+	for (auto const& c : boundaryVerticesStatus_scan1)
+       std::cout << c << std::endl;
+
+	for (auto const& c : boundaryVerticesStatus_scan2)
+       std::cout << c << std::endl;
+    return 0;
+*/
+
+/*
+// TECHNICALLY, this portion is not needed in the code ... its just useful for collecting statistics & sanity checking !
   Eigen::MatrixXi boundaryEdges_Scan1;
   Eigen::MatrixXi boundaryEdges_Scan2;
   igl::exterior_edges(scan1.F,boundaryEdges_Scan1); 
@@ -76,11 +90,15 @@ int main(int argc, char *argv[])
 
   std::cout << "# boundary edges , scan 1 = " << numBoundaryEdgesScan1 << std::endl;
   std::cout << "# boundary edges , scan 2 = " << numBoundaryEdgesScan2 << std::endl; // so this makes sense too me! 
+*/
 
   // CONVERT <boolean> vector to <int> vector , as the boundary vertex indices 
   // WILL GENERATE the boundary interpolating surface mesh
 
-  int boundaryVerticesIdxs_scan1_array[scan1.V.rows()]; 
+  int boundaryVerticesIdxs_scan1_array[scan1.V.rows()];  // I can get away with this, but its not good practice !
+  for ( int i = 0; i < scan1.V.rows(); i++)
+      boundaryVerticesIdxs_scan1_array[i] = -1;
+
 	// this dummy is used to find idxs quickly, ( access in sets is O(n), arrays is O(1))
   set<int> boundaryVerticesIdxs_scan1;
   int i;
@@ -95,14 +113,17 @@ int main(int argc, char *argv[])
   }
 
   int boundaryVerticesIdxs_scan2_array[scan2.V.rows()];
+  for ( int i = 0; i < scan1.V.rows(); i++)
+      boundaryVerticesIdxs_scan2_array[i] = -1;
+
   set<int> boundaryVerticesIdxs_scan2;
   int j;
   int numBoundaryVerticesScan2 = 0;
   for ( j = 0; j < scan2.V.rows(); ++j)
   {
       if(boundaryVerticesStatus_scan2[j] ) {
-          boundaryVerticesIdxs_scan2.insert(boundaryVerticesIdxs_scan2.end(),i);
-          boundaryVerticesIdxs_scan2_array[i] = i;
+          boundaryVerticesIdxs_scan2_array[j] = j;
+          boundaryVerticesIdxs_scan2.insert(boundaryVerticesIdxs_scan2.end(),j);
           numBoundaryVerticesScan2++;
       }
   } 
@@ -112,10 +133,22 @@ int main(int argc, char *argv[])
   std::cout << "# boundary vertices , scan 1 = " << numBoundaryVerticesScan1 << std::endl;
   std::cout << "# boundary vertices , scan 2 = " << numBoundaryVerticesScan2 << std::endl;
 
+  std::cout << "# vertices in boundary VertexIdx, set 1 , scan 1 = " << boundaryVerticesIdxs_scan1.size() << std::endl;
+  std::cout << "# vertices in boundary VertexIdx, set 2 , scan 2 = " << boundaryVerticesIdxs_scan2.size() << std::endl;
+
+
+   std::ostream_iterator< int > output( cout, " " );
+
+   //cout << "set 1, scan 1, contains: ";
+   //std::copy( boundaryVerticesIdxs_scan1.begin(), boundaryVerticesIdxs_scan1.end(), output ); // this is right ! missing (8th), which is expected ! 
+   //std::copy( boundaryVerticesIdxs_scan2.begin(), boundaryVerticesIdxs_scan2.end(), output ); // this is right ! missing (8th), which is expected ! 
+//return 0;
+
+
 // since we know total # boundary vertices ... we know how many vertice and faces the interpolating surface will have! 
+// #TODO :: expand to both vertex sets !
   interpolatedSurface.V = Eigen::MatrixXd::Zero(numBoundaryVerticesScan1,3);
   interpolatedSurface.F = Eigen::MatrixXi::Zero(numBoundaryVerticesScan1,3); 
-
 
   // construct the sets of boundary vertices
   // we can pre-alloc a ZERO() matrix of a given size, as we know the # of boundary vertices
@@ -123,28 +156,42 @@ int main(int argc, char *argv[])
 
   // 	SO THIS IS WHERE THINGS START TO BREAK !
 
-  Eigen::MatrixXd boundaryVertices_scan1 = Eigen::MatrixXd::Zero(numBoundaryVerticesScan1,3); 
+  Eigen::MatrixXd boundaryVertices_scan1 = Eigen::MatrixXd::Zero(numBoundaryVerticesScan1,3);  
   int idx = 0;
-  for ( i = 0; i < numBoundaryVerticesScan1; ++i)
+  for ( i = 0; i < scan1.V.rows(); i++)
   {
-     // #TODO rain check thsi code
-     if ( boundaryVerticesIdxs_scan1_array[i] == i )  
+     // #TODO rain check this code
+     if ( boundaryVerticesIdxs_scan1_array[i] == i )   // this is a bug ( 0th vertex unavaille ... gaah ! ) 
       {
 		boundaryVertices_scan1.row(idx) = (scan1.V).row(i); // this is where THE ISSUE is @ 
+        idx++;
+        /*
+        std::cout << "i = " << i << std::endl;
+        std::cout << "Scan data " << (scan1.V).row(i) << std::endl;
+        std::cout << "boundary  " << boundaryVertices_scan1.row(idx) << std::endl;
+        */
       }
-      idx++;
   }
-  
+/*
+  std::cout << " boundary vertices, scan 1 are " << std::endl;
+	//for (auto const& c : boundaryVerticesStatus_scan1)
+     //  std::cout << c << std::endl;
+  std::cout << boundaryVertices_scan1 << std::endl;
+*/
+
+  //std::cout << "the 8thy vertex = " << (scan1.V).row(8) << std::endl; = (0,0,0) 
   Eigen::MatrixXd boundaryVertices_scan2 = Eigen::MatrixXd::Zero(numBoundaryVerticesScan2,3); 
   int idx2 = 0;
-  for ( i = 0; i < numBoundaryVerticesScan2; ++i)
+  for ( i = 0; i < scan2.V.rows(); i++)
   {
       if ( boundaryVerticesIdxs_scan2_array[i] == i ) 
       {
 		boundaryVertices_scan2.row(idx2) = (scan2.V).row(i);
+        idx2++;
       }
-      idx2++;
   }
+
+// CAN CONFIRM :: I seem to be getting the correct set of boundary vertices  !
 
   /* For scan 1 :: 
    * [a] SOLVE for closest vertex in scan 2
