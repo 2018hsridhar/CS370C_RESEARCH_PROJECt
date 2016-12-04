@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
 
 // since we know total # boundary vertices ... we know how many vertice and faces the interpolating surface will have! 
 // #TODO :: expand to both vertex sets !
-  interpolatedSurface.V = Eigen::MatrixXd::Zero(numBoundaryVerticesScan1,3);
+  igl::cat(1,scan1.V,scan2.V,interpolatedSurface.V);
   interpolatedSurface.F = Eigen::MatrixXi::Zero(numBoundaryVerticesScan1,3); 
 
   // construct the sets of boundary vertices
@@ -228,35 +228,42 @@ int main(int argc, char *argv[])
   for ( int i = 0; i < numBoundaryVerticesScan1; i++)
   {
     Eigen::MatrixXd scan1CurrentPoint = boundaryVertices_scan1.row(i);  
+    // note :: you are always closest to yoursefl ... this won't make sense ! take teh 2nd one  
   	igl::point_mesh_squared_distance(scan1CurrentPoint,boundaryVertices_scan1,
                                     	Ele_Scan1,
 										smallestSquaredDists_Scan1,smallestDistIndxs_Scan1,
 										closestBoundaryPointIn_Scan1);
 
     // construct face data ... output to file
-    int scan1_boundaryPoint = boundaryVerticesIdxs_scan1_array[i];
-    int scan1_closestPoint = smallestDistIndxs_Scan1(0,0);
-    int scan2_closestPoint = smallestDistIndxs(i,0);  // assert if correct
+
+	set<int>::iterator iter = boundaryVerticesIdxs_scan1.find(i);
+    int setint;
+	if (iter != boundaryVerticesIdxs_scan1.end()) {
+		setint = *iter;
+	}
+    int scan1_boundaryPoint = setint;
+
+    int scan2_closestPoint = smallestDistIndxs(i,0) + scan1.V.rows(); // needs to be fixed ( how though? IDK ) 
+    int scan1_closestPoint = smallestDistIndxs_Scan1(0,0); 
     Eigen::VectorXi newFace = Eigen::Vector3i( scan1_boundaryPoint, scan1_closestPoint, scan2_closestPoint);
 	(interpolatedSurface.F).row(j) = newFace.transpose();
     j++; 
   }
+
+  std::cout << interpolatedSurface.F << std::endl; // this is clearly wrong !
+
   // @ this j, we are now working with the 2nd partial scan
 
   // CREATE ONE HUGE MESH containing both partial scan pieces ( inspired by example 407 ) 
   // and the interpolated surface
 
   igl::cat(1,scan1.V,scan2.V,scans.V);
-  interpolatedSurface.V = boundaryVertices_scan1;
   igl::cat(1,scans.V,interpolatedSurface.V,scene.V); 
 		// technically, we are not adding new vertices to our system !, so why is this even here??
+        // also :: thsi really shouldn't do anything, when i think about it !
 
   igl::cat(1,scan1.F, MatrixXi(scan2.F.array() + scan1.V.rows()), scans.F);
   igl::cat(1,scans.F, MatrixXi(interpolatedSurface.F.array() + scan1.V.rows() + scan2.V.rows()), scene.F);
-
- // issue arises with interpolatedSurface.F.array(), but not scan2.F.array() ... I wonder why though! 
-  //igl::cat(1,scans.F, MatrixXi(scan2.F.array() + scene.V.rows()), scene.F);  
-  //igl::cat(1,scans.F, MatrixXi(scan2.F.array() + scan1.V.rows()), scene.F);  // GETTING ISSUE HERE! ( works with scans.V.rows(), not scene.V.rows() ??? WTF !! ) 
 
   /***********************************************************/ 
   // SETUP LibIgl Viewer 
