@@ -191,7 +191,9 @@ int main(int argc, char *argv[])
       }
   }
 
+/////////////////////////////////////////////////////////////////////////////
 // CAN CONFIRM :: I seem to be getting the correct set of boundary vertices  !
+/////////////////////////////////////////////////////////////////////////////
 
   /* For scan 1 :: 
    * [a] SOLVE for closest vertex in scan 2
@@ -244,11 +246,13 @@ int main(int argc, char *argv[])
   // CREATE ONE HUGE MESH containing both partial scan pieces ( inspired by example 407 ) 
   // and the interpolated surface
 
-  igl::cat(1,scan1.V,scan2.V,scene.V);
-  //igl::cat(1,scene.V,interpolatedSurface.V,scene.V); // technically, we are not adding new vertices to our system !, so why is this even here??
+  igl::cat(1,scan1.V,scan2.V,scans.V);
+  interpolatedSurface.V = boundaryVertices_scan1;
+  igl::cat(1,scans.V,interpolatedSurface.V,scene.V); 
+		// technically, we are not adding new vertices to our system !, so why is this even here??
 
   igl::cat(1,scan1.F, MatrixXi(scan2.F.array() + scan1.V.rows()), scans.F);
-  igl::cat(1,scans.F, MatrixXi(scan2.F.array() + scene.V.rows()), scene.F);
+  igl::cat(1,scans.F, MatrixXi(interpolatedSurface.F.array() + scan1.V.rows() + scan2.V.rows()), scene.F);
 
  // issue arises with interpolatedSurface.F.array(), but not scan2.F.array() ... I wonder why though! 
   //igl::cat(1,scans.F, MatrixXi(scan2.F.array() + scene.V.rows()), scene.F);  
