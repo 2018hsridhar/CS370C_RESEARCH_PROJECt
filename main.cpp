@@ -8,8 +8,8 @@
 #include "tutorial_shared_path.h"
 #include <igl/writeOFF.h>
 #include <igl/writePLY.h>
-#include <igl/cat.h> // used to help concatenate sets of vertices, edges, normals ( matrices in general ... MATLAB-func based )
-#include <igl/exterior_edges.h> // used to solve for set of all edges  ( this nmight get boundary edges  ?? )
+#include <igl/cat.h> 
+#include <igl/exterior_edges.h> 
 #include <igl/is_boundary_edge.h> 
 #include <igl/on_boundary.h> 
 #include <igl/point_mesh_squared_distance.h>
@@ -21,18 +21,7 @@
 #include <set> 
 
 #include <algorithm>
-#include <iterator> // ostream_iterator
-
-// include files for code , from project Tiling 
-/*
-#include "tiling/SliceStack.h" // I believe it has too be this format. I cannot just to "SliceStack.h" directly, though 
-#include "tiling/SliceStack.cpp" // not correct #TODO fix linking s.t. files can be included properly 
-#include "tiling/curvatureFlow.h"
-#include "tiling/glob_defs.h"
-#include "tiling/offsetSurface.h"
-#include "tiling/viewTetMesh.h"
-#include "tiling/Helpers.h"
-*/
+#include <iterator> 
 
 using namespace Eigen;  
 using namespace std;
@@ -73,20 +62,6 @@ int main(int argc, char *argv[])
   // note :: convert to a set of indices of boundary_vertices :: will be easier to solve this problem then
   std::vector<bool> boundaryVerticesStatus_scan1 = igl::is_border_vertex(scan1.V, scan1.F);  
   std::vector<bool> boundaryVerticesStatus_scan2 = igl::is_border_vertex(scan2.V, scan2.F);  
-
-  //std::vector<bool> v1 = igl::is_border_vertex(scan1.V, scan1.F);  
-  //Eigen::VectorXi J (v1.data());
-  //Eigen::VectorXi J = VectorXi::Map(v1.data(), v1.size());
-  //const Eigen::Array<bool,Eigen::Dynamic,1> keep = J.array(); ... do this, but once u have everything else working !
-
-/*
-  std::cout << scan1.V << std::endl;
-  Eigen::MatrixXd partialImage = igl::slice_mask(scan1.V,keep,1);
-  std::cout << partialImage << std::endl;
-  return 0;
-*/
-
-
   // count # of boundary vertices ( put this in its own method ! ) 
   int numBoundaryVerticesScan1 = countBoundaryVertices(boundaryVerticesStatus_scan1);
   int numBoundaryVerticesScan2 = countBoundaryVertices(boundaryVerticesStatus_scan2);
@@ -323,3 +298,30 @@ int countBoundaryVertices(vector<bool> boundaryVerticesStatus)
   Eigen::VectorXd Temperatures;
   SliceStack::computeLaplace(slice_no,TV,TF,TT,TO,Temperatures);
 */
+
+// include files for code , from project Tiling 
+/*
+#include "tiling/SliceStack.h" // I believe it has too be this format. I cannot just to "SliceStack.h" directly, though 
+#include "tiling/SliceStack.cpp" // not correct #TODO fix linking s.t. files can be included properly 
+#include "tiling/curvatureFlow.h"
+#include "tiling/glob_defs.h"
+#include "tiling/offsetSurface.h"
+#include "tiling/viewTetMesh.h"
+#include "tiling/Helpers.h"
+*/
+
+  //std::vector<bool> v1 = igl::is_border_vertex(scan1.V, scan1.F);  
+  //Eigen::VectorXi J (v1.data());
+  //Eigen::VectorXi J = VectorXi::Map(v1.data(), v1.size());
+  //const Eigen::Array<bool,Eigen::Dynamic,1> keep = J.array(); ... do this, but once u have everything else working !
+
+/*
+  std::cout << scan1.V << std::endl;
+  Eigen::MatrixXd partialImage = igl::slice_mask(scan1.V,keep,1);
+  std::cout << partialImage << std::endl;
+  return 0;
+*/
+
+
+
+
