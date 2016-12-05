@@ -27,16 +27,17 @@ using namespace Eigen;
 using namespace std;
 using namespace igl;
 
+// a set of useful methods for this code
 int countBoundaryVertices(vector<bool> boundaryVerticesStatus);
+void fillBoundaryIndexes(vector<bool> verticesBoundaryStatus, int numBoundaryVertices,int* indexesArray);
 
 struct Mesh
 {
   Eigen::MatrixXd V; 
   Eigen::MatrixXi F;
-  Eigen::MatrixXi E; // (Ex2) dimensinoal matrix of all edges of a particular mesh Eigen::MatrixXd O; // (O) not sure, but it is needed for tetraHedralize Slice method in "tiling" . what data must go in? not sure !  } scan2,scan1,scene;
+  Eigen::MatrixXi E; 
 } scan1,scan2,scans,scene,interpolatedSurface;
 
-// in my case, I expect the # boundary vertices = 16 = # boundary edges ( for the planar data case )
 int main(int argc, char *argv[])
 {
   //if(!readOFF(TUTORIAL_SHARED_PATH "/camelhead.off",scan1.V,scan1.F))
@@ -62,9 +63,11 @@ int main(int argc, char *argv[])
   // note :: convert to a set of indices of boundary_vertices :: will be easier to solve this problem then
   std::vector<bool> boundaryVerticesStatus_scan1 = igl::is_border_vertex(scan1.V, scan1.F);  
   std::vector<bool> boundaryVerticesStatus_scan2 = igl::is_border_vertex(scan2.V, scan2.F);  
+
   // count # of boundary vertices ( put this in its own method ! ) 
   int numBoundaryVerticesScan1 = countBoundaryVertices(boundaryVerticesStatus_scan1);
   int numBoundaryVerticesScan2 = countBoundaryVertices(boundaryVerticesStatus_scan2);
+  int totalNumBoundaryVertices = numBoundaryVerticesScan1 + numBoundaryVerticesScan2;
 
   //std::cout << "num Boundary vertices , scan 1 = " << numBoundaryVerticesScan1 << std::endl;
   //std::cout << "num Boundary vertices , scan 2 = " << numBoundaryVerticesScan2 << std::endl;
@@ -76,60 +79,11 @@ int main(int argc, char *argv[])
   // WILL GENERATE the boundary interpolating surface mesh
   // array , for partial scan 1 , representing idx data ( into scan1 vertices ) for boundary Vertices
   int boundaryVerticesIdxs_scan1_array[numBoundaryVerticesScan1];  
-  for ( int i = 0; i < numBoundaryVerticesScan1; i++)
-      boundaryVerticesIdxs_scan1_array[i] = -1;
+  fillBoundaryIndexes(boundaryVerticesStatus_scan1,numBoundaryVerticesScan1,boundaryVerticesIdxs_scan1_array);
 
-	// this dummy is used to find idxs quickly, ( access in sets is O(n), arrays is O(1))
-  set<int> boundaryVerticesIdxs_scan1;
-  int i;
-  int cur = 0;
-  for ( i = 0; i < scan1.V.rows(); ++i)
-  {
-      if(boundaryVerticesStatus_scan1[i] ) 
-	  {
-          boundaryVerticesIdxs_scan1_array[cur] = i;
-          boundaryVerticesIdxs_scan1.insert(boundaryVerticesIdxs_scan1.end(),i);
-          cur++;
-      }
-  }
-  // array , for partial scan 2 , representing idx data ( into scan2 vertices ) for boundary Vertices
+
   int boundaryVerticesIdxs_scan2_array[numBoundaryVerticesScan2];  
-  for ( int i = 0; i < numBoundaryVerticesScan2; i++)
-      boundaryVerticesIdxs_scan2_array[i] = -1; 
-
-  std::cout << std::endl;
-  for (int i = 0; i < numBoundaryVerticesScan1; i++)
-     std::cout << boundaryVerticesIdxs_scan1_array[i] << std::endl;
-
-  set<int> boundaryVerticesIdxs_scan2;
-  int j;
-  cur = 0;
-  for ( j = 0; j < scan2.V.rows(); ++j)
-  {
-      if(boundaryVerticesStatus_scan2[j] ) {
-          boundaryVerticesIdxs_scan2_array[cur] = j;
-          boundaryVerticesIdxs_scan2.insert(boundaryVerticesIdxs_scan2.end(),j);
-          cur++;
-      }
-  } 
-
- // GLARING BUG :: boundaryverticesStatus_scan1 is a bool vector ... u have to count though !
-  int totalNumBoundaryVertices = numBoundaryVerticesScan1 + numBoundaryVerticesScan2;
-/*
-  std::cout << "# boundary vertices , scan 1 = " << numBoundaryVerticesScan1 << std::endl;
-  std::cout << "# boundary vertices , scan 2 = " << numBoundaryVerticesScan2 << std::endl;
-
-  std::cout << "# vertices in boundary VertexIdx, set 1 , scan 1 = " << boundaryVerticesIdxs_scan1.size() << std::endl;
-  std::cout << "# vertices in boundary VertexIdx, set 2 , scan 2 = " << boundaryVerticesIdxs_scan2.size() << std::endl;
-*/
-
-
-   //std::ostream_iterator< int > output( cout, " " );
-   //cout << "set 1, scan 1, contains: ";
-   //std::copy( boundaryVerticesIdxs_scan1.begin(), boundaryVerticesIdxs_scan1.end(), output ); // this is right ! missing (8th), which is expected ! 
-   //std::copy( boundaryVerticesIdxs_scan2.begin(), boundaryVerticesIdxs_scan2.end(), output ); // this is right ! missing (8th), which is expected ! 
-//return 0;
-
+  fillBoundaryIndexes(boundaryVerticesStatus_scan2,numBoundaryVerticesScan2,boundaryVerticesIdxs_scan2_array);
 
 // since we know total # boundary vertices ... we know how many vertice and faces the interpolating surface will have! 
 // #TODO :: expand to both vertex sets !
@@ -145,7 +99,7 @@ int main(int argc, char *argv[])
   Eigen::MatrixXd boundaryVertices_scan1 = Eigen::MatrixXd::Zero(numBoundaryVerticesScan1,3);  
   int idx = 0;
 
-
+  int i;
   for ( i = 0; i < numBoundaryVerticesScan1; i++)
   {
      int indexIntoVerticesOfScan1 = boundaryVerticesIdxs_scan1_array[i];
@@ -205,21 +159,15 @@ int main(int argc, char *argv[])
 //////////// ACCOUNT FOR THIS OFFSET /////////////// 
 // total number of face to add = total number of boundary vertices !  // 
 
-  j = 0;
+  int j = 0;
   for ( int i = 0; i < numBoundaryVerticesScan1; i++)
   {
-    set<int>::iterator iter = boundaryVerticesIdxs_scan1.find(i);
-    int setint;
-	if (iter != boundaryVerticesIdxs_scan1.end()) {
-		setint = *iter;
-	}
-    int scan1_boundaryPoint = setint;
+    int scan1_boundaryPoint = boundaryVerticesIdxs_scan1_array[i];
 
     Eigen::MatrixXd scan1CurrentPoint = boundaryVertices_scan1.row(i);  
-    // note :: you are always closest to yoursefl ... this won't make sense ! take teh 2nd one  
+    // since always closest to self; use dummyVertices, to set the current BOUNDARY VERTEX to very huge (x,y,z) vals! 
     Eigen::MatrixXd dummyVertices = boundaryVertices_scan1;
-    dummyVertices.row(scan1_boundaryPoint) = Eigen::Vector3d(10000,100000,100000); // why does everybody think vertex 15 is the closest? WTF ???
-  	//igl::point_mesh_squared_distance(scan1CurrentPoint,dummyVertices,
+    dummyVertices.row(i) = Eigen::Vector3d(10000,100000,100000); 
   	igl::point_mesh_squared_distance(scan1CurrentPoint,dummyVertices,
                                     	Ele_Scan1,
 										smallestSquaredDists_Scan1,smallestDistIndxs_Scan1,
@@ -267,6 +215,25 @@ int countBoundaryVertices(vector<bool> boundaryVerticesStatus)
           numBoundaryVertices++;
   return numBoundaryVertices;
 }
+
+void fillBoundaryIndexes(vector<bool> verticesBoundaryStatus, int numBoundaryVertices,int* indexesArray)
+{
+  for ( int i = 0; i < numBoundaryVertices; i++)
+      indexesArray[i] = -1;
+
+  int i;
+  int cur = 0;
+  for ( i = 0; i < verticesBoundaryStatus.size(); ++i) {
+      if(verticesBoundaryStatus[i] ) {
+          indexesArray[cur] = i;
+          cur++;
+      }
+  }
+} 
+
+
+
+
 
 
 
