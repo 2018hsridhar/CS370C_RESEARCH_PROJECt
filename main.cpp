@@ -40,13 +40,13 @@ struct Mesh
 
 int main(int argc, char *argv[])
 {
-  //if(!readOFF(TUTORIAL_SHARED_PATH "/camelhead.off",scan1.V,scan1.F))
-  if(!readOFF(TUTORIAL_SHARED_PATH "/planexy.off",scan1.V,scan1.F))
+  if(!readOFF(TUTORIAL_SHARED_PATH "/camelhead.off",scan1.V,scan1.F))
+  //if(!readOFF(TUTORIAL_SHARED_PATH "/planexy.off",scan1.V,scan1.F))
   {
     cout<<"failed to load partial scan one "<<endl;
   } 
-  //if(!readOFF(TUTORIAL_SHARED_PATH "/camelhead2.off",scan2.V,scan2.F))
-  if(!readOFF(TUTORIAL_SHARED_PATH "/planexy2.off",scan2.V,scan2.F))
+  if(!readOFF(TUTORIAL_SHARED_PATH "/camelhead2.off",scan2.V,scan2.F))
+  //if(!readOFF(TUTORIAL_SHARED_PATH "/planexy2.off",scan2.V,scan2.F))
   {
     cout<<"failed to load partial scan two "<<endl;
   }
