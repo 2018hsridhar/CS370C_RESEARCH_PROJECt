@@ -38,6 +38,8 @@ using namespace Eigen;
 using namespace std;
 using namespace igl;
 
+int countBoundaryVertices(vector<bool> boundaryVerticesStatus);
+
 struct Mesh
 {
   Eigen::MatrixXd V; 
@@ -85,47 +87,18 @@ int main(int argc, char *argv[])
 */
 
 
-/*
-    MY SANITY CHECK for boolean vector of boundary vertex status  ... this makes sense to me 
-	for (auto const& c : boundaryVerticesStatus_scan1)
-       std::cout << c << std::endl;
+  // count # of boundary vertices ( put this in its own method ! ) 
+  int numBoundaryVerticesScan1 = countBoundaryVertices(boundaryVerticesStatus_scan1);
+  int numBoundaryVerticesScan2 = countBoundaryVertices(boundaryVerticesStatus_scan2);
 
-	for (auto const& c : boundaryVerticesStatus_scan2)
-       std::cout << c << std::endl;
-    return 0;
-*/
+  //std::cout << "num Boundary vertices , scan 1 = " << numBoundaryVerticesScan1 << std::endl;
+  //std::cout << "num Boundary vertices , scan 2 = " << numBoundaryVerticesScan2 << std::endl;
 
-/*
-// TECHNICALLY, this portion is not needed in the code ... its just useful for collecting statistics & sanity checking !
-  Eigen::MatrixXi boundaryEdges_Scan1;
-  Eigen::MatrixXi boundaryEdges_Scan2;
-  igl::exterior_edges(scan1.F,boundaryEdges_Scan1); 
-  igl::exterior_edges(scan2.F,boundaryEdges_Scan2); 
-  int numBoundaryEdgesScan1 = boundaryEdges_Scan1.rows();
-  int numBoundaryEdgesScan2 = boundaryEdges_Scan2.rows(); 
-
-  std::cout << "# boundary edges , scan 1 = " << numBoundaryEdgesScan1 << std::endl;
-  std::cout << "# boundary edges , scan 2 = " << numBoundaryEdgesScan2 << std::endl; // so this makes sense too me! 
-*/
+  /////////////////////////////////////////////
+  /////////////////////////////////////////////
 
   // CONVERT <boolean> vector to <int> vector , as the boundary vertex indices 
   // WILL GENERATE the boundary interpolating surface mesh
-
-  /////////////////////////////////////////////
-  // count # of boundary vertices ( put this in its own method ! ) 
-  int numBoundaryVerticesScan1 = 0;
-  for ( int i = 0; i < scan1.V.rows(); ++i)
-      if(boundaryVerticesStatus_scan1[i] ) 
-          numBoundaryVerticesScan1++;
-
-  int numBoundaryVerticesScan2 = 0;
-  for ( int i = 0; i < scan2.V.rows(); ++i)
-      if(boundaryVerticesStatus_scan2[i] ) 
-          numBoundaryVerticesScan2++;
-
-  /////////////////////////////////////////////
-  /////////////////////////////////////////////
-
   // array , for partial scan 1 , representing idx data ( into scan1 vertices ) for boundary Vertices
   int boundaryVerticesIdxs_scan1_array[numBoundaryVerticesScan1];  
   for ( int i = 0; i < numBoundaryVerticesScan1; i++)
@@ -310,6 +283,15 @@ int main(int argc, char *argv[])
 
 }
 
+int countBoundaryVertices(vector<bool> boundaryVerticesStatus)
+{
+  int numBoundaryVertices = 0;
+  int size = boundaryVerticesStatus.size();
+  for ( int i = 0; i < size; ++i)
+      if(boundaryVerticesStatus[i] ) 
+          numBoundaryVertices++;
+  return numBoundaryVertices;
+}
 
 
 

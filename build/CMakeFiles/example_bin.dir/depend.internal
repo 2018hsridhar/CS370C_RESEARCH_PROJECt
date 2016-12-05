@@ -300,15 +300,9 @@ CMakeFiles/example_bin.dir/main.cpp.o
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/cat.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/colon.cpp
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/colon.h
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/cotmatrix.cpp
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/cotmatrix.h
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/cotmatrix_entries.cpp
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/cotmatrix_entries.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/cross.cpp
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/cross.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/deprecated.h
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/dihedral_angles.cpp
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/dihedral_angles.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/dot.cpp
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/dot.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/doublearea.cpp
@@ -317,8 +311,6 @@ CMakeFiles/example_bin.dir/main.cpp.o
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/edge_lengths.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/exterior_edges.cpp
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/exterior_edges.h
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/face_areas.cpp
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/face_areas.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/face_occurrences.cpp
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/face_occurrences.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/file_dialog_open.cpp
@@ -340,10 +332,6 @@ CMakeFiles/example_bin.dir/main.cpp.o
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/is_boundary_edge.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/is_edge_manifold.cpp
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/is_edge_manifold.h
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/is_symmetric.cpp
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/is_symmetric.h
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/jet.cpp
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/jet.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/list_to_matrix.cpp
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/list_to_matrix.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/look_at.cpp
@@ -357,8 +345,6 @@ CMakeFiles/example_bin.dir/main.cpp.o
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/matrix_to_list.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/max_size.cpp
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/max_size.h
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/min_quad_with_fixed.cpp
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/min_quad_with_fixed.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/min_size.cpp
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/min_size.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/normalize_quat.cpp
@@ -404,15 +390,11 @@ CMakeFiles/example_bin.dir/main.cpp.o
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/readPLY.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/readSTL.cpp
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/readSTL.h
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/remove_duplicates.cpp
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/remove_duplicates.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/reorder.cpp
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/reorder.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/repmat.cpp
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/repmat.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/serialize.h
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/setdiff.cpp
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/setdiff.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/slice.cpp
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/slice.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/slice_mask.cpp
@@ -466,16 +448,6 @@ CMakeFiles/example_bin.dir/main.cpp.o
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/writePLY.cpp
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/writePLY.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/main.cpp
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/tiling/Helpers.h
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/tiling/Slice.h
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/tiling/SliceParser.h
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/tiling/SliceStack.cpp
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/tiling/SliceStack.h
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/tiling/Tile.h
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/tiling/curvatureFlow.h
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/tiling/glob_defs.h
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/tiling/offsetSurface.h
- /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/tiling/viewTetMesh.h
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/tutorial_shared_path.h
 CMakeFiles/example_bin.dir/stoichGradDescent.cpp.o
  /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../external/nanogui/ext/eigen/Eigen/Cholesky
