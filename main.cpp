@@ -14,6 +14,8 @@
 #include <igl/on_boundary.h> 
 #include <igl/point_mesh_squared_distance.h>
 #include <igl/adjacency_list.h>
+#include <igl/slice.h>
+#include <igl/slice_mask.h>
 
 #include <igl/is_border_vertex.h>
 #include <set> 
@@ -57,6 +59,7 @@ int main(int argc, char *argv[])
     cout<<"failed to load partial scan two "<<endl;
   }
 
+
   // solve for vertex adjacency lists of the two partial scans ... will be used for determining minimal edges
   vector<vector<double>> Adjacency_Scan1;
   igl::adjacency_list(scan1.F,Adjacency_Scan1);
@@ -68,6 +71,19 @@ int main(int argc, char *argv[])
   // note :: convert to a set of indices of boundary_vertices :: will be easier to solve this problem then
   std::vector<bool> boundaryVerticesStatus_scan1 = igl::is_border_vertex(scan1.V, scan1.F);  
   std::vector<bool> boundaryVerticesStatus_scan2 = igl::is_border_vertex(scan2.V, scan2.F);  
+
+  //std::vector<bool> v1 = igl::is_border_vertex(scan1.V, scan1.F);  
+  //Eigen::VectorXi J (v1.data());
+  //Eigen::VectorXi J = VectorXi::Map(v1.data(), v1.size());
+  //const Eigen::Array<bool,Eigen::Dynamic,1> keep = J.array(); ... do this, but once u have everything else working !
+
+/*
+  std::cout << scan1.V << std::endl;
+  Eigen::MatrixXd partialImage = igl::slice_mask(scan1.V,keep,1);
+  std::cout << partialImage << std::endl;
+  return 0;
+*/
+
 
 /*
     MY SANITY CHECK for boolean vector of boundary vertex status  ... this makes sense to me 
@@ -95,50 +111,72 @@ int main(int argc, char *argv[])
   // CONVERT <boolean> vector to <int> vector , as the boundary vertex indices 
   // WILL GENERATE the boundary interpolating surface mesh
 
-  int boundaryVerticesIdxs_scan1_array[scan1.V.rows()];  // I can get away with this, but its not good practice !
-  for ( int i = 0; i < scan1.V.rows(); i++)
+  /////////////////////////////////////////////
+  // count # of boundary vertices ( put this in its own method ! ) 
+  int numBoundaryVerticesScan1 = 0;
+  for ( int i = 0; i < scan1.V.rows(); ++i)
+      if(boundaryVerticesStatus_scan1[i] ) 
+          numBoundaryVerticesScan1++;
+
+  int numBoundaryVerticesScan2 = 0;
+  for ( int i = 0; i < scan2.V.rows(); ++i)
+      if(boundaryVerticesStatus_scan2[i] ) 
+          numBoundaryVerticesScan2++;
+
+  /////////////////////////////////////////////
+  /////////////////////////////////////////////
+
+  // array , for partial scan 1 , representing idx data ( into scan1 vertices ) for boundary Vertices
+  int boundaryVerticesIdxs_scan1_array[numBoundaryVerticesScan1];  
+  for ( int i = 0; i < numBoundaryVerticesScan1; i++)
       boundaryVerticesIdxs_scan1_array[i] = -1;
 
 	// this dummy is used to find idxs quickly, ( access in sets is O(n), arrays is O(1))
   set<int> boundaryVerticesIdxs_scan1;
   int i;
-  int numBoundaryVerticesScan1 = 0;
+  int cur = 0;
   for ( i = 0; i < scan1.V.rows(); ++i)
   {
-      if(boundaryVerticesStatus_scan1[i] ) {
-          boundaryVerticesIdxs_scan1_array[i] = i;
+      if(boundaryVerticesStatus_scan1[i] ) 
+	  {
+          boundaryVerticesIdxs_scan1_array[cur] = i;
           boundaryVerticesIdxs_scan1.insert(boundaryVerticesIdxs_scan1.end(),i);
-          numBoundaryVerticesScan1++;
+          cur++;
       }
   }
+  // array , for partial scan 2 , representing idx data ( into scan2 vertices ) for boundary Vertices
+  int boundaryVerticesIdxs_scan2_array[numBoundaryVerticesScan2];  
+  for ( int i = 0; i < numBoundaryVerticesScan2; i++)
+      boundaryVerticesIdxs_scan2_array[i] = -1; 
 
-  int boundaryVerticesIdxs_scan2_array[scan2.V.rows()];
-  for ( int i = 0; i < scan1.V.rows(); i++)
-      boundaryVerticesIdxs_scan2_array[i] = -1;
+  std::cout << std::endl;
+  for (int i = 0; i < numBoundaryVerticesScan1; i++)
+     std::cout << boundaryVerticesIdxs_scan1_array[i] << std::endl;
 
   set<int> boundaryVerticesIdxs_scan2;
   int j;
-  int numBoundaryVerticesScan2 = 0;
+  cur = 0;
   for ( j = 0; j < scan2.V.rows(); ++j)
   {
       if(boundaryVerticesStatus_scan2[j] ) {
-          boundaryVerticesIdxs_scan2_array[j] = j;
+          boundaryVerticesIdxs_scan2_array[cur] = j;
           boundaryVerticesIdxs_scan2.insert(boundaryVerticesIdxs_scan2.end(),j);
-          numBoundaryVerticesScan2++;
+          cur++;
       }
   } 
 
  // GLARING BUG :: boundaryverticesStatus_scan1 is a bool vector ... u have to count though !
   int totalNumBoundaryVertices = numBoundaryVerticesScan1 + numBoundaryVerticesScan2;
+/*
   std::cout << "# boundary vertices , scan 1 = " << numBoundaryVerticesScan1 << std::endl;
   std::cout << "# boundary vertices , scan 2 = " << numBoundaryVerticesScan2 << std::endl;
 
   std::cout << "# vertices in boundary VertexIdx, set 1 , scan 1 = " << boundaryVerticesIdxs_scan1.size() << std::endl;
   std::cout << "# vertices in boundary VertexIdx, set 2 , scan 2 = " << boundaryVerticesIdxs_scan2.size() << std::endl;
+*/
 
 
-   std::ostream_iterator< int > output( cout, " " );
-
+   //std::ostream_iterator< int > output( cout, " " );
    //cout << "set 1, scan 1, contains: ";
    //std::copy( boundaryVerticesIdxs_scan1.begin(), boundaryVerticesIdxs_scan1.end(), output ); // this is right ! missing (8th), which is expected ! 
    //std::copy( boundaryVerticesIdxs_scan2.begin(), boundaryVerticesIdxs_scan2.end(), output ); // this is right ! missing (8th), which is expected ! 
@@ -158,35 +196,30 @@ int main(int argc, char *argv[])
 
   Eigen::MatrixXd boundaryVertices_scan1 = Eigen::MatrixXd::Zero(numBoundaryVerticesScan1,3);  
   int idx = 0;
-  for ( i = 0; i < scan1.V.rows(); i++)
+
+
+  for ( i = 0; i < numBoundaryVerticesScan1; i++)
   {
-     // #TODO rain check this code
-     if ( boundaryVerticesIdxs_scan1_array[i] == i )   // this is a bug ( 0th vertex unavaille ... gaah ! ) 
+     int indexIntoVerticesOfScan1 = boundaryVerticesIdxs_scan1_array[i];
+     if ( indexIntoVerticesOfScan1 != -1 ) 
       {
-		boundaryVertices_scan1.row(idx) = (scan1.V).row(i); // this is where THE ISSUE is @ 
+		boundaryVertices_scan1.row(idx) = (scan1.V).row(indexIntoVerticesOfScan1); // this is where THE ISSUE is @ 
         idx++;
-        /*
-        std::cout << "i = " << i << std::endl;
-        std::cout << "Scan data " << (scan1.V).row(i) << std::endl;
-        std::cout << "boundary  " << boundaryVertices_scan1.row(idx) << std::endl;
-        */
       }
   }
-/*
-  std::cout << " boundary vertices, scan 1 are " << std::endl;
-	//for (auto const& c : boundaryVerticesStatus_scan1)
-     //  std::cout << c << std::endl;
-  std::cout << boundaryVertices_scan1 << std::endl;
-*/
+
+  //std::cout << " boundary vertices, scan 1 are " << std::endl;
+  //std::cout << boundaryVertices_scan1 << std::endl;
 
   //std::cout << "the 8thy vertex = " << (scan1.V).row(8) << std::endl; = (0,0,0) 
   Eigen::MatrixXd boundaryVertices_scan2 = Eigen::MatrixXd::Zero(numBoundaryVerticesScan2,3); 
   int idx2 = 0;
-  for ( i = 0; i < scan2.V.rows(); i++)
+  for ( i = 0; i < numBoundaryVerticesScan2; i++)
   {
-      if ( boundaryVerticesIdxs_scan2_array[i] == i ) 
+     int indexIntoVerticesOfScan2 = boundaryVerticesIdxs_scan2_array[i];
+     if ( indexIntoVerticesOfScan2 != -1 ) 
       {
-		boundaryVertices_scan2.row(idx2) = (scan2.V).row(i);
+		boundaryVertices_scan2.row(idx2) = (scan2.V).row(indexIntoVerticesOfScan2); // this is where THE ISSUE is @ 
         idx2++;
       }
   }
@@ -236,8 +269,9 @@ int main(int argc, char *argv[])
 
     Eigen::MatrixXd scan1CurrentPoint = boundaryVertices_scan1.row(i);  
     // note :: you are always closest to yoursefl ... this won't make sense ! take teh 2nd one  
-    Eigen::MatrixXd dummyVertices = Eigen::MatrixXd::Zero(numBoundaryVerticesScan1,3);  
-    dummyVertices.row(scan1_boundaryPoint) = Eigen::Vector3d(10000,100000,100000);
+    Eigen::MatrixXd dummyVertices = boundaryVertices_scan1;
+    dummyVertices.row(scan1_boundaryPoint) = Eigen::Vector3d(10000,100000,100000); // why does everybody think vertex 15 is the closest? WTF ???
+  	//igl::point_mesh_squared_distance(scan1CurrentPoint,dummyVertices,
   	igl::point_mesh_squared_distance(scan1CurrentPoint,dummyVertices,
                                     	Ele_Scan1,
 										smallestSquaredDists_Scan1,smallestDistIndxs_Scan1,
@@ -245,7 +279,7 @@ int main(int argc, char *argv[])
 
     // construct face data ... output to file
     int scan2_closestPoint = smallestDistIndxs(i,0) + scan1.V.rows(); 
-    int scan1_closestPoint = smallestDistIndxs_Scan1(0,0); // needs to be fixed ( how though? IDK ) 
+    int scan1_closestPoint = boundaryVerticesIdxs_scan1_array[smallestDistIndxs_Scan1(0,0)]; // needs to be fixed!
     Eigen::VectorXi newFace = Eigen::Vector3i( scan1_boundaryPoint, scan1_closestPoint, scan2_closestPoint);
 	(interpolatedSurface.F).row(j) = newFace.transpose();
     j++; 

@@ -2692,6 +2692,22 @@ Eigen/Sparse
 slice.cpp
 /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/slice.cpp
 
+/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/slice_mask.cpp
+slice_mask.h
+/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/slice_mask.h
+cassert
+-
+
+/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/slice_mask.h
+igl_inline.h
+/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/igl_inline.h
+Eigen/Sparse
+-
+Eigen/Core
+-
+slice_mask.cpp
+/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/slice_mask.cpp
+
 /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/snap_to_canonical_view_quat.cpp
 snap_to_canonical_view_quat.h
 /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/snap_to_canonical_view_quat.h
@@ -3342,6 +3358,10 @@ igl/on_boundary.h
 igl/point_mesh_squared_distance.h
 -
 igl/adjacency_list.h
+-
+igl/slice.h
+-
+igl/slice_mask.h
 -
 igl/is_border_vertex.h
 -

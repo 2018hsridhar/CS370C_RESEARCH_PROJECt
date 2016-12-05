@@ -414,6 +414,8 @@ CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/l
 CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/setdiff.h
 CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/slice.cpp
 CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/slice.h
+CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/slice_mask.cpp
+CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/slice_mask.h
 CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/snap_to_canonical_view_quat.cpp
 CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/snap_to_canonical_view_quat.h
 CMakeFiles/example_bin.dir/main.cpp.o: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../include/igl/snap_to_fixed_up.cpp
