@@ -60,27 +60,17 @@ int main(int argc, char *argv[])
   igl::adjacency_list(scan2.F,Adjacency_Scan2);
 
   // discover boundary vertices
-  // note :: convert to a set of indices of boundary_vertices :: will be easier to solve this problem then
   std::vector<bool> boundaryVerticesStatus_scan1 = igl::is_border_vertex(scan1.V, scan1.F);  
   std::vector<bool> boundaryVerticesStatus_scan2 = igl::is_border_vertex(scan2.V, scan2.F);  
 
-  // count # of boundary vertices ( put this in its own method ! ) 
+  // count # of boundary vertices 
   int numBoundaryVerticesScan1 = countBoundaryVertices(boundaryVerticesStatus_scan1);
   int numBoundaryVerticesScan2 = countBoundaryVertices(boundaryVerticesStatus_scan2);
   int totalNumBoundaryVertices = numBoundaryVerticesScan1 + numBoundaryVerticesScan2;
 
-  //std::cout << "num Boundary vertices , scan 1 = " << numBoundaryVerticesScan1 << std::endl;
-  //std::cout << "num Boundary vertices , scan 2 = " << numBoundaryVerticesScan2 << std::endl;
-
-  /////////////////////////////////////////////
-  /////////////////////////////////////////////
-
-  // CONVERT <boolean> vector to <int> vector , as the boundary vertex indices 
-  // WILL GENERATE the boundary interpolating surface mesh
-  // array , for partial scan 1 , representing idx data ( into scan1 vertices ) for boundary Vertices
+  // sovle for boundary vertex indices
   int boundaryVerticesIdxs_scan1_array[numBoundaryVerticesScan1];  
   fillBoundaryIndexes(boundaryVerticesStatus_scan1,numBoundaryVerticesScan1,boundaryVerticesIdxs_scan1_array);
-
 
   int boundaryVerticesIdxs_scan2_array[numBoundaryVerticesScan2];  
   fillBoundaryIndexes(boundaryVerticesStatus_scan2,numBoundaryVerticesScan2,boundaryVerticesIdxs_scan2_array);
@@ -88,7 +78,8 @@ int main(int argc, char *argv[])
 // since we know total # boundary vertices ... we know how many vertice and faces the interpolating surface will have! 
 // #TODO :: expand to both vertex sets !
   igl::cat(1,scan1.V,scan2.V,interpolatedSurface.V);
-  interpolatedSurface.F = Eigen::MatrixXi::Zero(numBoundaryVerticesScan1,3); 
+  //interpolatedSurface.F = Eigen::MatrixXi::Zero(numBoundaryVerticesScan1,3); 
+  interpolatedSurface.F = Eigen::MatrixXi::Zero(totalNumBoundaryVertices,3); 
 
   // construct the sets of boundary vertices
   // we can pre-alloc a ZERO() matrix of a given size, as we know the # of boundary vertices
@@ -96,9 +87,9 @@ int main(int argc, char *argv[])
 
   // 	SO THIS IS WHERE THINGS START TO BREAK !
 
+// I will leave this section as is, BUT it should be refactorzed!
   Eigen::MatrixXd boundaryVertices_scan1 = Eigen::MatrixXd::Zero(numBoundaryVerticesScan1,3);  
   int idx = 0;
-
   int i;
   for ( i = 0; i < numBoundaryVerticesScan1; i++)
   {
@@ -110,10 +101,6 @@ int main(int argc, char *argv[])
       }
   }
 
-  //std::cout << " boundary vertices, scan 1 are " << std::endl;
-  //std::cout << boundaryVertices_scan1 << std::endl;
-
-  //std::cout << "the 8thy vertex = " << (scan1.V).row(8) << std::endl; = (0,0,0) 
   Eigen::MatrixXd boundaryVertices_scan2 = Eigen::MatrixXd::Zero(numBoundaryVerticesScan2,3); 
   int idx2 = 0;
   for ( i = 0; i < numBoundaryVerticesScan2; i++)
@@ -125,6 +112,9 @@ int main(int argc, char *argv[])
         idx2++;
       }
   }
+
+  //std::cout << " boundary vertices, scan 1 are " << std::endl;
+  //std::cout << boundaryVertices_scan1 << std::endl;
 
 /////////////////////////////////////////////////////////////////////////////
 // CAN CONFIRM :: I seem to be getting the correct set of boundary vertices  !
@@ -152,13 +142,6 @@ int main(int argc, char *argv[])
   Eigen::VectorXd smallestSquaredDists_Scan1;
   Eigen::VectorXi smallestDistIndxs_Scan1;
 
-
-//////////// HUGE NOTE TO SELF /////////////////////
-///////////// WHEN OUTPUTTING THIS FILE //////////////
-///////////// Scan1's vertice first, then Scan's 2 //////////////
-//////////// ACCOUNT FOR THIS OFFSET /////////////// 
-// total number of face to add = total number of boundary vertices !  // 
-
   int j = 0;
   for ( int i = 0; i < numBoundaryVerticesScan1; i++)
   {
@@ -181,17 +164,59 @@ int main(int argc, char *argv[])
     j++; 
   }
 
-  std::cout << interpolatedSurface.F << std::endl; // this is clearly wrong !
+	/////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////
 
   // @ this j, we are now working with the 2nd partial scan
+  /* For scan 2 :: 
+   * [a] SOLVE for closest vertex in scan 1 
+   * [b] SOVLE for closest vertex in boundaryVertices_scan2 ( note :: has to be 1 put, else, feeding back to self again issue !)
+   * CONSTRUCT a triangle, corresponding to the three indices found here !
+   */
+ 
+  // part (a)  
+  Eigen::MatrixXd closestPointsFrom_Scan2_To_Scan1;
+  Eigen::VectorXi Ele_Prime = Eigen::VectorXi::LinSpaced(boundaryVertices_scan1.rows(), 0, boundaryVertices_scan1.rows() - 1);
+  Eigen::VectorXd smallestSquaredDists_Prime;
+  Eigen::VectorXi smallestDistIndxs_Prime;
+  igl::point_mesh_squared_distance(boundaryVertices_scan2,boundaryVertices_scan1,
+                                    Ele_Prime,
+									smallestSquaredDists_Prime,smallestDistIndxs_Prime,
+									closestPointsFrom_Scan2_To_Scan1);
 
-  // CREATE ONE HUGE MESH containing both partial scan pieces ( inspired by example 407 ) 
-  // and the interpolated surface
+  // part (b)  
+  Eigen::MatrixXd closestBoundaryPointIn_Scan2;
+  Eigen::VectorXi Ele_Scan2 = Eigen::VectorXi::LinSpaced(boundaryVertices_scan2.rows(), 0, boundaryVertices_scan2.rows() - 1);
+  Eigen::VectorXd smallestSquaredDists_Scan2;
+  Eigen::VectorXi smallestDistIndxs_Scan2;
 
+  int k = j;
+  for ( int i = 0; i < numBoundaryVerticesScan2; i++)
+  {
+    int scan2_boundaryPoint = boundaryVerticesIdxs_scan2_array[i] + scan1.V.rows();
+
+    Eigen::MatrixXd scan2CurrentPoint = boundaryVertices_scan2.row(i);  
+    // since always closest to self; use dummyVertices, to set the current BOUNDARY VERTEX to very huge (x,y,z) vals! 
+    Eigen::MatrixXd dummyVertices_prime = boundaryVertices_scan2;
+    dummyVertices_prime.row(i) = Eigen::Vector3d(10000,100000,100000); 
+  	igl::point_mesh_squared_distance(scan2CurrentPoint,dummyVertices_prime,
+                                    	Ele_Scan2,
+										smallestSquaredDists_Scan2,smallestDistIndxs_Scan2,
+										closestBoundaryPointIn_Scan2);
+
+    // construct face data ... output to file
+    int scan1_closestPoint = smallestDistIndxs(i,0); 
+    int scan2_closestPoint = boundaryVerticesIdxs_scan2_array[smallestDistIndxs_Scan2(0,0)] + scan1.V.rows(); // needs to be fixed!
+    Eigen::VectorXi newFace_prime = Eigen::Vector3i( scan2_boundaryPoint, scan2_closestPoint, scan1_closestPoint);
+	(interpolatedSurface.F).row(k) = newFace_prime.transpose();
+    k++; 
+  }
+
+
+  // CREATE ONE HUGE MESH containing the two partial scans and interpoalted surface
   igl::cat(1,scan1.V,scan2.V,scans.V);
   igl::cat(1,scans.V,interpolatedSurface.V,scene.V); 
-		// technically, we are not adding new vertices to our system !, so why is this even here??
-        // also :: thsi really shouldn't do anything, when i think about it !
 
   igl::cat(1,scan1.F, MatrixXi(scan2.F.array() + scan1.V.rows()), scans.F);
   igl::cat(1,scans.F, interpolatedSurface.F, scene.F);
@@ -203,7 +228,6 @@ int main(int argc, char *argv[])
   viewer.data.set_mesh(scene.V, scene.F); 
   viewer.launch();
  
-
 }
 
 int countBoundaryVertices(vector<bool> boundaryVerticesStatus)
