@@ -82,6 +82,16 @@ install/local: preinstall
 install/local/fast: install/local
 .PHONY : install/local/fast
 
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
+
+# Special rule for the target install/strip
+install/strip/fast: install/strip
+.PHONY : install/strip/fast
+
 # Special rule for the target list_install_components
 list_install_components:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
@@ -197,6 +207,30 @@ glew/fast:
 	$(MAKE) -f libigl/glew/CMakeFiles/glew.dir/build.make libigl/glew/CMakeFiles/glew.dir/build
 .PHONY : glew/fast
 
+homogenousConversionMethods.o: homogenousConversionMethods.cpp.o
+.PHONY : homogenousConversionMethods.o
+
+# target to build an object file
+homogenousConversionMethods.cpp.o:
+	$(MAKE) -f CMakeFiles/example_bin.dir/build.make CMakeFiles/example_bin.dir/homogenousConversionMethods.cpp.o
+.PHONY : homogenousConversionMethods.cpp.o
+
+homogenousConversionMethods.i: homogenousConversionMethods.cpp.i
+.PHONY : homogenousConversionMethods.i
+
+# target to preprocess a source file
+homogenousConversionMethods.cpp.i:
+	$(MAKE) -f CMakeFiles/example_bin.dir/build.make CMakeFiles/example_bin.dir/homogenousConversionMethods.cpp.i
+.PHONY : homogenousConversionMethods.cpp.i
+
+homogenousConversionMethods.s: homogenousConversionMethods.cpp.s
+.PHONY : homogenousConversionMethods.s
+
+# target to generate assembly for a file
+homogenousConversionMethods.cpp.s:
+	$(MAKE) -f CMakeFiles/example_bin.dir/build.make CMakeFiles/example_bin.dir/homogenousConversionMethods.cpp.s
+.PHONY : homogenousConversionMethods.cpp.s
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -221,30 +255,6 @@ main.cpp.s:
 	$(MAKE) -f CMakeFiles/example_bin.dir/build.make CMakeFiles/example_bin.dir/main.cpp.s
 .PHONY : main.cpp.s
 
-testHomogConvert.o: testHomogConvert.cpp.o
-.PHONY : testHomogConvert.o
-
-# target to build an object file
-testHomogConvert.cpp.o:
-	$(MAKE) -f CMakeFiles/example_bin.dir/build.make CMakeFiles/example_bin.dir/testHomogConvert.cpp.o
-.PHONY : testHomogConvert.cpp.o
-
-testHomogConvert.i: testHomogConvert.cpp.i
-.PHONY : testHomogConvert.i
-
-# target to preprocess a source file
-testHomogConvert.cpp.i:
-	$(MAKE) -f CMakeFiles/example_bin.dir/build.make CMakeFiles/example_bin.dir/testHomogConvert.cpp.i
-.PHONY : testHomogConvert.cpp.i
-
-testHomogConvert.s: testHomogConvert.cpp.s
-.PHONY : testHomogConvert.s
-
-# target to generate assembly for a file
-testHomogConvert.cpp.s:
-	$(MAKE) -f CMakeFiles/example_bin.dir/build.make CMakeFiles/example_bin.dir/testHomogConvert.cpp.s
-.PHONY : testHomogConvert.cpp.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -255,18 +265,19 @@ help:
 	@echo "... example_bin"
 	@echo "... install"
 	@echo "... install/local"
+	@echo "... install/strip"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... uninstall"
 	@echo "... glfw"
 	@echo "... glfw_objects"
 	@echo "... glew"
+	@echo "... homogenousConversionMethods.o"
+	@echo "... homogenousConversionMethods.i"
+	@echo "... homogenousConversionMethods.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
-	@echo "... testHomogConvert.o"
-	@echo "... testHomogConvert.i"
-	@echo "... testHomogConvert.s"
 .PHONY : help
 
 
