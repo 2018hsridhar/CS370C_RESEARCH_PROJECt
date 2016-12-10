@@ -1,4 +1,4 @@
-# CS370C_RESEARCH_PROJECT
+# CS370C RESEARCH PROJECT
 
 #TODO :: Describe what this code base is for
 

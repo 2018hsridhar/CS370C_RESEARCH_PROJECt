@@ -1,5 +1,0 @@
-/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/shared/CMakeFiles/example_bin.dir
-/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/shared/libigl/glew/CMakeFiles/glew.dir
-/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/shared/libigl/glfw/src/CMakeFiles/glfw.dir
-/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/shared/libigl/glfw/src/CMakeFiles/glfw_objects.dir
-/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/shared/libigl/glfw/CMakeFiles/uninstall.dir
