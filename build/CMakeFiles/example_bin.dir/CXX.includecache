@@ -724,6 +724,14 @@ src/SparseQR/SparseQR.h
 src/Core/util/ReenableStupidWarnings.h
 /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../external/nanogui/ext/eigen/Eigen/src/Core/util/ReenableStupidWarnings.h
 
+/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../external/nanogui/ext/eigen/Eigen/StdVector
+Core
+/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../external/nanogui/ext/eigen/Eigen/Core
+vector
+-
+src/StlSupport/StdVector.h
+/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../external/nanogui/ext/eigen/Eigen/src/StlSupport/StdVector.h
+
 /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../external/nanogui/ext/eigen/Eigen/src/Cholesky/LDLT.h
 
 /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../external/nanogui/ext/eigen/Eigen/src/Cholesky/LLT.h
@@ -1319,6 +1327,12 @@ Eigen/src/Core/util/MKL_support.h
 /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../external/nanogui/ext/eigen/Eigen/src/SparseLU/SparseLU_relax_snode.h
 
 /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../external/nanogui/ext/eigen/Eigen/src/SparseQR/SparseQR.h
+
+/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../external/nanogui/ext/eigen/Eigen/src/StlSupport/StdVector.h
+details.h
+/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../external/nanogui/ext/eigen/Eigen/src/StlSupport/details.h
+
+/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../external/nanogui/ext/eigen/Eigen/src/StlSupport/details.h
 
 /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/shared/cmake/../../external/nanogui/ext/eigen/Eigen/src/misc/Image.h
 
@@ -3186,6 +3200,8 @@ set
 algorithm
 -
 iterator
+-
+Eigen/StdVector
 -
 tiling/SliceStack.h
 /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/tiling/SliceStack.h

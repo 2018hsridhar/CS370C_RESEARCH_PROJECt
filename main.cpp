@@ -23,6 +23,8 @@
 #include <algorithm>
 #include <iterator> 
 
+#include <Eigen/StdVector>
+
 using namespace Eigen;  
 using namespace std;
 using namespace igl;
@@ -30,6 +32,9 @@ using namespace igl;
 // a set of useful methods for this code
 int countBoundaryVertices(vector<bool> boundaryVerticesStatus);
 void fillBoundaryIndexes(vector<bool> verticesBoundaryStatus, int numBoundaryVertices,int* indexesArray);
+template <typename T>
+void printcoll (T const& coll);
+std::vector<int> findAdjBndryVerts(int vertIdx);
 
 struct Mesh
 {
@@ -37,6 +42,15 @@ struct Mesh
   Eigen::MatrixXi F;
   Eigen::MatrixXi E; 
 } scan1,scan2,scans,scene,interpolatedSurface;
+
+std::vector<std::vector<int>> Adjacency_Scan1;
+std::vector<std::vector<int>> Adjacency_Scan2;
+
+std::vector<bool> boundaryVerticesStatus_scan1;
+std::vector<bool> boundaryVerticesStatus_scan2;
+
+Eigen::MatrixXd boundaryVertices_scan1;
+Eigen::MatrixXd boundaryVertices_scan2;
 
 int main(int argc, char *argv[])
 {
@@ -51,17 +65,14 @@ int main(int argc, char *argv[])
     cout<<"failed to load partial scan two "<<endl;
   }
 
-
-  // solve for vertex adjacency lists of the two partial scans ... will be used for determining minimal edges
-  vector<vector<double>> Adjacency_Scan1;
+  // SOLVE for vertex adjacency lists of the two partial scans 
+  // USED to determine minimal edges
   igl::adjacency_list(scan1.F,Adjacency_Scan1);
-   
-  vector<vector<double>> Adjacency_Scan2;
   igl::adjacency_list(scan2.F,Adjacency_Scan2);
 
   // discover boundary vertices
-  std::vector<bool> boundaryVerticesStatus_scan1 = igl::is_border_vertex(scan1.V, scan1.F);  
-  std::vector<bool> boundaryVerticesStatus_scan2 = igl::is_border_vertex(scan2.V, scan2.F);  
+  boundaryVerticesStatus_scan1 = igl::is_border_vertex(scan1.V, scan1.F);  
+  boundaryVerticesStatus_scan2 = igl::is_border_vertex(scan2.V, scan2.F);  
 
   // count # of boundary vertices 
   int numBoundaryVerticesScan1 = countBoundaryVertices(boundaryVerticesStatus_scan1);
@@ -77,16 +88,13 @@ int main(int argc, char *argv[])
 
 // since we know total # boundary vertices ... we know how many vertice and faces the interpolating surface will have! 
   igl::cat(1,scan1.V,scan2.V,interpolatedSurface.V);
-   interpolatedSurface.F = Eigen::MatrixXi::Zero(totalNumBoundaryVertices,3);  // #TODO :: check if this must be changed !
 
-  // construct the sets of boundary vertices
-  // we can pre-alloc a ZERO() matrix of a given size, as we know the # of boundary vertices
-  // then iteratively replace ith row with corresponding boundary vertex !
+  // CONSTRUCT the sets of boundary vertices
 
-// I will leave this section as is, BUT it should be refactorzed!
-  Eigen::MatrixXd boundaryVertices_scan1 = Eigen::MatrixXd::Zero(numBoundaryVerticesScan1,3);  
-  int idx = 0;
+// #TODO :: refactorize
+  boundaryVertices_scan1 = Eigen::MatrixXd::Zero(numBoundaryVerticesScan1,3);  
   int i;
+  int idx = 0;
   for ( i = 0; i < numBoundaryVerticesScan1; i++)
   {
      int indexIntoVerticesOfScan1 = boundaryVerticesIdxs_scan1_array[i];
@@ -97,7 +105,7 @@ int main(int argc, char *argv[])
       }
   }
 
-  Eigen::MatrixXd boundaryVertices_scan2 = Eigen::MatrixXd::Zero(numBoundaryVerticesScan2,3); 
+  boundaryVertices_scan2 = Eigen::MatrixXd::Zero(numBoundaryVerticesScan2,3); 
   int idx2 = 0;
   for ( i = 0; i < numBoundaryVerticesScan2; i++)
   {
@@ -123,8 +131,12 @@ int main(int argc, char *argv[])
  */
 
 // [1] solve for a seed edge :: choose a rand point in scan_1, find closest point in scan_2
+
+// #TODO :: include a method for getting ( vertex,index ) easily?? seems useful, but l8r 
+
   int scan1SeedPointIndex = boundaryVerticesIdxs_scan1_array[0];
   Eigen::MatrixXd scan1SeedPoint = boundaryVertices_scan1.row(0);  
+
   Eigen::MatrixXd closestPointsFrom_Scan1_To_Scan2;
   Eigen::VectorXi Ele = Eigen::VectorXi::LinSpaced(boundaryVertices_scan2.rows(), 0, boundaryVertices_scan2.rows() - 1);
   Eigen::VectorXd smallestSquaredDists;
@@ -135,119 +147,31 @@ int main(int argc, char *argv[])
 									closestPointsFrom_Scan1_To_Scan2);
 
   int scan2ClosestPointToSeedIndex = smallestDistIndxs(0,0) + scan1.V.rows(); 
-  Eigen::VectorXi seedEdge = Eigen::Vector2i( scan1SeedPointIndex, scan2ClosestPointToSeedIndex);
-
-  //std::cout << seedEdge << std::endl;
-
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////
-// OLD ALGORITHM :: THIS WAS NOT CORRECT IN THE FIRST PLACE //////////////////
-//////////////////////////////////////////////////////////////////////////////
-
-  /* For scan 1 :: 
-   * [a] SOLVE for closest vertex in scan 2
-   * [b] SOVLE for closest vertex in boundaryVertices_scan1 ( note :: has to be 1 put, else, feeding back to self again issue !)
-   * CONSTRUCT a triangle, corresponding to the three indices found here !
-   */
+  Eigen::Vector2i seedEdge = Eigen::Vector2i( scan1SeedPointIndex, scan2ClosestPointToSeedIndex);
+  Eigen::Vector2i newEdge;
  
-  // part (a)  
-/*
-  Eigen::MatrixXd closestPointsFrom_Scan1_To_Scan2;
-  Eigen::VectorXi Ele = Eigen::VectorXi::LinSpaced(boundaryVertices_scan2.rows(), 0, boundaryVertices_scan2.rows() - 1);
-  Eigen::VectorXd smallestSquaredDists;
-  Eigen::VectorXi smallestDistIndxs;
-  igl::point_mesh_squared_distance(boundaryVertices_scan1,boundaryVertices_scan2,
-                                    Ele,
-									smallestSquaredDists,smallestDistIndxs,
-									closestPointsFrom_Scan1_To_Scan2);
+  //std::vector<Eigen::Vector2i, Eigen::aligned_allocator<Eigen::Vector2i>> faces;
+  std::vector<Eigen::Vector2i> allEdges;
+  allEdges.push_back(seedEdge);
 
-  // part (b)  
-  Eigen::MatrixXd closestBoundaryPointIn_Scan1;
-  Eigen::VectorXi Ele_Scan1 = Eigen::VectorXi::LinSpaced(boundaryVertices_scan1.rows(), 0, boundaryVertices_scan1.rows() - 1);
-  Eigen::VectorXd smallestSquaredDists_Scan1;
-  Eigen::VectorXi smallestDistIndxs_Scan1;
+  // need a method to tell if there is an existing edge ( in the edges vectors ) 
 
-  int j = 0;
-  for ( int i = 0; i < numBoundaryVerticesScan1; i++)
-  {
-    int scan1_boundaryPoint = boundaryVerticesIdxs_scan1_array[i];
+  // [2] Find shortest adjacent edge, to edge e = (v_1,v_2), and use that to construct the new edge
 
-    Eigen::MatrixXd scan1CurrentPoint = boundaryVertices_scan1.row(i);  
-    // since always closest to self; use dummyVertices, to set the current BOUNDARY VERTEX to very huge (x,y,z) vals! 
-    Eigen::MatrixXd dummyVertices = boundaryVertices_scan1;
-    dummyVertices.row(i) = Eigen::Vector3d(10000,100000,100000); 
-  	igl::point_mesh_squared_distance(scan1CurrentPoint,dummyVertices,
-                                    	Ele_Scan1,
-										smallestSquaredDists_Scan1,smallestDistIndxs_Scan1,
-										closestBoundaryPointIn_Scan1);
+  // actually, just loop, and check vertIsOnBndry ( see ~/include/igl/loop.cpp)
+  // #TODO :: make a method for this!
 
-    // construct face data ... output to file
-    int scan2_closestPoint = smallestDistIndxs(i,0) + scan1.V.rows(); 
-    int scan1_closestPoint = boundaryVerticesIdxs_scan1_array[smallestDistIndxs_Scan1(0,0)]; // needs to be fixed!
-    Eigen::VectorXi newFace = Eigen::Vector3i( scan1_boundaryPoint, scan1_closestPoint, scan2_closestPoint);
-	(interpolatedSurface.F).row(j) = newFace.transpose();
-    j++; 
-  }
-*/
+  std::vector<int> bndryVertsToTest = findAdjBndryVerts(scan1SeedPointIndex);
+  //printcoll(bndryVertsToTest);
 
-	/////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////
 
-  // @ this j, we are now working with the 2nd partial scan
-  /* For scan 2 :: 
-   * [a] SOLVE for closest vertex in scan 1 
-   * [b] SOVLE for closest vertex in boundaryVertices_scan2 ( note :: has to be 1 put, else, feeding back to self again issue !)
-   * CONSTRUCT a triangle, corresponding to the three indices found here !
-   */
+  // WHERE OLD ALGORITHM USED TO BE ( sectioned off to end of code)
 
-/* 
-  // part (a)  
-  Eigen::MatrixXd closestPointsFrom_Scan2_To_Scan1;
-  Eigen::VectorXi Ele_Prime = Eigen::VectorXi::LinSpaced(boundaryVertices_scan1.rows(), 0, boundaryVertices_scan1.rows() - 1);
-  Eigen::VectorXd smallestSquaredDists_Prime;
-  Eigen::VectorXi smallestDistIndxs_Prime;
-  igl::point_mesh_squared_distance(boundaryVertices_scan2,boundaryVertices_scan1,
-                                    Ele_Prime,
-									smallestSquaredDists_Prime,smallestDistIndxs_Prime,
-									closestPointsFrom_Scan2_To_Scan1);
-
-  // part (b)  
-  Eigen::MatrixXd closestBoundaryPointIn_Scan2;
-  Eigen::VectorXi Ele_Scan2 = Eigen::VectorXi::LinSpaced(boundaryVertices_scan2.rows(), 0, boundaryVertices_scan2.rows() - 1);
-  Eigen::VectorXd smallestSquaredDists_Scan2;
-  Eigen::VectorXi smallestDistIndxs_Scan2;
-
-  int k = j;
-  for ( int i = 0; i < numBoundaryVerticesScan2; i++)
-  {
-    int scan2_boundaryPoint = boundaryVerticesIdxs_scan2_array[i] + scan1.V.rows();
-
-    Eigen::MatrixXd scan2CurrentPoint = boundaryVertices_scan2.row(i);  
-    // since always closest to self; use dummyVertices, to set the current BOUNDARY VERTEX to very huge (x,y,z) vals! 
-    Eigen::MatrixXd dummyVertices_prime = boundaryVertices_scan2;
-    dummyVertices_prime.row(i) = Eigen::Vector3d(10000,100000,100000); 
-  	igl::point_mesh_squared_distance(scan2CurrentPoint,dummyVertices_prime,
-                                    	Ele_Scan2,
-										smallestSquaredDists_Scan2,smallestDistIndxs_Scan2,
-										closestBoundaryPointIn_Scan2);
-
-    // construct face data ... output to file
-    int scan1_closestPoint = smallestDistIndxs(i,0); 
-    int scan2_closestPoint = boundaryVerticesIdxs_scan2_array[smallestDistIndxs_Scan2(0,0)] + scan1.V.rows(); // needs to be fixed!
-    Eigen::VectorXi newFace_prime = Eigen::Vector3i( scan2_boundaryPoint, scan2_closestPoint, scan1_closestPoint);
-	(interpolatedSurface.F).row(k) = newFace_prime.transpose();
-    k++; 
-  }
-*/
-
-  // CREATE ONE HUGE MESH containing the two partial scans and interpoalted surface
+  // CREATE ONE HUGE MESH containing the two partial scans and interpolated surface
   igl::cat(1,scan1.V,scan2.V,scans.V);
   igl::cat(1,scans.V,interpolatedSurface.V,scene.V); 
 
+  interpolatedSurface.F = Eigen::MatrixXi::Zero(totalNumBoundaryVertices,3);   // #TODO :: update this l8r 
   igl::cat(1,scan1.F, MatrixXi(scan2.F.array() + scan1.V.rows()), scans.F);
   igl::cat(1,scans.F, interpolatedSurface.F, scene.F);
 
@@ -285,11 +209,30 @@ void fillBoundaryIndexes(vector<bool> verticesBoundaryStatus, int numBoundaryVer
   }
 } 
 
+std::vector<int> findAdjBndryVerts(int vertIdx)
+{
+  const std::vector<int> &localAdjList_Scan1Vertex = Adjacency_Scan1[vertIdx];
+  std::vector<int> bndryVertsToTest; 
+  for ( int i = 0; i < localAdjList_Scan1Vertex.size(); i++)
+  {
+      int bndryVertIdx = localAdjList_Scan1Vertex[i];
+      if (boundaryVerticesStatus_scan1[bndryVertIdx] == 1) 
+          bndryVertsToTest.push_back(bndryVertIdx);
+  }            
+  return bndryVertsToTest;
+}
 
+template <typename T>
+void printcoll (T const& coll)
+{
+    typename T::const_iterator pos;  // iterator to iterate over coll
+    typename T::const_iterator end(coll.end());  // end position
 
-
-
-
+    for (pos=coll.begin(); pos!=end; ++pos) {
+        std::cout << *pos << ' ';
+    }
+    std::cout << std::endl;
+}
 
 // create Slice Stack ( this could have been approach, but Nathan Clement's code would need to be updated ! ) 
   // generate the enclosing bounding box for the two mesh manifolds/partial scan
@@ -343,6 +286,106 @@ void fillBoundaryIndexes(vector<bool> verticesBoundaryStatus, int numBoundaryVer
   return 0;
 */
 
+// useful method, to print elements of any STL container 
+// adapted from website http://www.java2s.com/Tutorial/Cpp/0260__template/templatefunctiontoprintelementsofanSTLcontainer.htm
 
+//////////////////////////////////////////////////////////////////////////////
+// OLD ALGORITHM :: THIS WAS NOT CORRECT IN THE FIRST PLACE //////////////////
+//////////////////////////////////////////////////////////////////////////////
 
+  /* For scan 1 :: 
+   * [a] SOLVE for closest vertex in scan 2
+   * [b] SOVLE for closest vertex in boundaryVertices_scan1 ( note :: has to be 1 put, else, feeding back to self again issue !)
+   * CONSTRUCT a triangle, corresponding to the three indices found here !
+   */
+ 
+  // part (a)  
+/*
+  Eigen::MatrixXd closestPointsFrom_Scan1_To_Scan2;
+  Eigen::VectorXi Ele = Eigen::VectorXi::LinSpaced(boundaryVertices_scan2.rows(), 0, boundaryVertices_scan2.rows() - 1);
+  Eigen::VectorXd smallestSquaredDists;
+  Eigen::VectorXi smallestDistIndxs;
+  igl::point_mesh_squared_distance(boundaryVertices_scan1,boundaryVertices_scan2,
+                                    Ele,
+                  smallestSquaredDists,smallestDistIndxs,
+                  closestPointsFrom_Scan1_To_Scan2);
 
+  // part (b)  
+  Eigen::MatrixXd closestBoundaryPointIn_Scan1;
+  Eigen::VectorXi Ele_Scan1 = Eigen::VectorXi::LinSpaced(boundaryVertices_scan1.rows(), 0, boundaryVertices_scan1.rows() - 1);
+  Eigen::VectorXd smallestSquaredDists_Scan1;
+  Eigen::VectorXi smallestDistIndxs_Scan1;
+
+  int j = 0;
+  for ( int i = 0; i < numBoundaryVerticesScan1; i++)
+  {
+    int scan1_boundaryPoint = boundaryVerticesIdxs_scan1_array[i];
+
+    Eigen::MatrixXd scan1CurrentPoint = boundaryVertices_scan1.row(i);  
+    // since always closest to self; use dummyVertices, to set the current BOUNDARY VERTEX to very huge (x,y,z) vals! 
+    Eigen::MatrixXd dummyVertices = boundaryVertices_scan1;
+    dummyVertices.row(i) = Eigen::Vector3d(10000,100000,100000); 
+    igl::point_mesh_squared_distance(scan1CurrentPoint,dummyVertices,
+                                      Ele_Scan1,
+                    smallestSquaredDists_Scan1,smallestDistIndxs_Scan1,
+                    closestBoundaryPointIn_Scan1);
+
+    // construct face data ... output to file
+    int scan2_closestPoint = smallestDistIndxs(i,0) + scan1.V.rows(); 
+    int scan1_closestPoint = boundaryVerticesIdxs_scan1_array[smallestDistIndxs_Scan1(0,0)]; // needs to be fixed!
+    Eigen::VectorXi newFace = Eigen::Vector3i( scan1_boundaryPoint, scan1_closestPoint, scan2_closestPoint);
+  (interpolatedSurface.F).row(j) = newFace.transpose();
+    j++; 
+  }
+*/
+
+  /////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////
+
+  // @ this j, we are now working with the 2nd partial scan
+  /* For scan 2 :: 
+   * [a] SOLVE for closest vertex in scan 1 
+   * [b] SOVLE for closest vertex in boundaryVertices_scan2 ( note :: has to be 1 put, else, feeding back to self again issue !)
+   * CONSTRUCT a triangle, corresponding to the three indices found here !
+   */
+
+/* 
+  // part (a)  
+  Eigen::MatrixXd closestPointsFrom_Scan2_To_Scan1;
+  Eigen::VectorXi Ele_Prime = Eigen::VectorXi::LinSpaced(boundaryVertices_scan1.rows(), 0, boundaryVertices_scan1.rows() - 1);
+  Eigen::VectorXd smallestSquaredDists_Prime;
+  Eigen::VectorXi smallestDistIndxs_Prime;
+  igl::point_mesh_squared_distance(boundaryVertices_scan2,boundaryVertices_scan1,
+                                    Ele_Prime,
+                  smallestSquaredDists_Prime,smallestDistIndxs_Prime,
+                  closestPointsFrom_Scan2_To_Scan1);
+
+  // part (b)  
+  Eigen::MatrixXd closestBoundaryPointIn_Scan2;
+  Eigen::VectorXi Ele_Scan2 = Eigen::VectorXi::LinSpaced(boundaryVertices_scan2.rows(), 0, boundaryVertices_scan2.rows() - 1);
+  Eigen::VectorXd smallestSquaredDists_Scan2;
+  Eigen::VectorXi smallestDistIndxs_Scan2;
+
+  int k = j;
+  for ( int i = 0; i < numBoundaryVerticesScan2; i++)
+  {
+    int scan2_boundaryPoint = boundaryVerticesIdxs_scan2_array[i] + scan1.V.rows();
+
+    Eigen::MatrixXd scan2CurrentPoint = boundaryVertices_scan2.row(i);  
+    // since always closest to self; use dummyVertices, to set the current BOUNDARY VERTEX to very huge (x,y,z) vals! 
+    Eigen::MatrixXd dummyVertices_prime = boundaryVertices_scan2;
+    dummyVertices_prime.row(i) = Eigen::Vector3d(10000,100000,100000); 
+    igl::point_mesh_squared_distance(scan2CurrentPoint,dummyVertices_prime,
+                                      Ele_Scan2,
+                    smallestSquaredDists_Scan2,smallestDistIndxs_Scan2,
+                    closestBoundaryPointIn_Scan2);
+
+    // construct face data ... output to file
+    int scan1_closestPoint = smallestDistIndxs(i,0); 
+    int scan2_closestPoint = boundaryVerticesIdxs_scan2_array[smallestDistIndxs_Scan2(0,0)] + scan1.V.rows(); // needs to be fixed!
+    Eigen::VectorXi newFace_prime = Eigen::Vector3i( scan2_boundaryPoint, scan2_closestPoint, scan1_closestPoint);
+  (interpolatedSurface.F).row(k) = newFace_prime.transpose();
+    k++; 
+  }
+*/
