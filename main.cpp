@@ -35,6 +35,7 @@ void fillBoundaryIndexes(vector<bool> verticesBoundaryStatus, int numBoundaryVer
 template <typename T>
 void printcoll (T const& coll);
 std::vector<int> findAdjBndryVerts(int vertIdx);
+Eigen::MatrixXd retrieveBoundaryVertices(int bndryVerticesIdxs[], int numBndryVertices);
 
 struct Mesh
 {
@@ -86,36 +87,9 @@ int main(int argc, char *argv[])
   int boundaryVerticesIdxs_scan2_array[numBoundaryVerticesScan2];  
   fillBoundaryIndexes(boundaryVerticesStatus_scan2,numBoundaryVerticesScan2,boundaryVerticesIdxs_scan2_array);
 
-// since we know total # boundary vertices ... we know how many vertice and faces the interpolating surface will have! 
-  igl::cat(1,scan1.V,scan2.V,interpolatedSurface.V);
-
   // CONSTRUCT the sets of boundary vertices
-
-// #TODO :: refactorize
-  boundaryVertices_scan1 = Eigen::MatrixXd::Zero(numBoundaryVerticesScan1,3);  
-  int i;
-  int idx = 0;
-  for ( i = 0; i < numBoundaryVerticesScan1; i++)
-  {
-     int indexIntoVerticesOfScan1 = boundaryVerticesIdxs_scan1_array[i];
-     if ( indexIntoVerticesOfScan1 != -1 ) 
-      {
-		boundaryVertices_scan1.row(idx) = (scan1.V).row(indexIntoVerticesOfScan1); 
-        idx++;
-      }
-  }
-
-  boundaryVertices_scan2 = Eigen::MatrixXd::Zero(numBoundaryVerticesScan2,3); 
-  int idx2 = 0;
-  for ( i = 0; i < numBoundaryVerticesScan2; i++)
-  {
-     int indexIntoVerticesOfScan2 = boundaryVerticesIdxs_scan2_array[i];
-     if ( indexIntoVerticesOfScan2 != -1 ) 
-      {
-		boundaryVertices_scan2.row(idx2) = (scan2.V).row(indexIntoVerticesOfScan2); 
-        idx2++;
-      }
-  }
+  boundaryVertices_scan1 = retrieveBoundaryVertices(boundaryVerticesIdxs_scan1_array,numBoundaryVerticesScan1);
+  boundaryVertices_scan2 = retrieveBoundaryVertices(boundaryVerticesIdxs_scan2_array,numBoundaryVerticesScan2);
 
   //std::cout << " boundary vertices, scan 1 are " << std::endl;
   //std::cout << boundaryVertices_scan1 << std::endl;
@@ -162,14 +136,16 @@ int main(int argc, char *argv[])
   // #TODO :: make a method for this!
 
   std::vector<int> bndryVertsToTest = findAdjBndryVerts(scan1SeedPointIndex);
-  //printcoll(bndryVertsToTest);
+  printcoll(bndryVertsToTest);
 
 
   // WHERE OLD ALGORITHM USED TO BE ( sectioned off to end of code)
 
   // CREATE ONE HUGE MESH containing the two partial scans and interpolated surface
-  igl::cat(1,scan1.V,scan2.V,scans.V);
-  igl::cat(1,scans.V,interpolatedSurface.V,scene.V); 
+  // igl::cat(1,scan1.V,scan2.V,interpolatedSurface.V); # doubel check if this is to be done!
+  //igl::cat(1,scan1.V,scan2.V,scans.V);
+  //igl::cat(1,scans.V,interpolatedSurface.V,scene.V); 
+  igl::cat(1,scan1.V,scan2.V,scene.V);
 
   interpolatedSurface.F = Eigen::MatrixXi::Zero(totalNumBoundaryVertices,3);   // #TODO :: update this l8r 
   igl::cat(1,scan1.F, MatrixXi(scan2.F.array() + scan1.V.rows()), scans.F);
@@ -208,6 +184,21 @@ void fillBoundaryIndexes(vector<bool> verticesBoundaryStatus, int numBoundaryVer
       }
   }
 } 
+
+Eigen::MatrixXd retrieveBoundaryVertices(int bndryVerticesIdxs[], int numBndryVertices)
+{
+  Eigen::MatrixXd bndryVertices = Eigen::MatrixXd::Zero(numBndryVertices,3);  
+  int i;
+  for ( i = 0; i < numBndryVertices; i++)
+  {
+     int indexIntoVertices = bndryVerticesIdxs[i];
+     std::cout << "indexed is " << bndryVerticesIdxs[i] << std::endl;
+     if ( indexIntoVertices != -1 ) {
+		bndryVertices.row(i) = (scan1.V).row(indexIntoVertices); 
+     }
+  }
+  return bndryVertices; 
+}
 
 std::vector<int> findAdjBndryVerts(int vertIdx)
 {

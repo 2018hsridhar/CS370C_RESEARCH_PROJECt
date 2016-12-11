@@ -72,3 +72,37 @@ compilation terminated.
 Determining if the C compiler works failed with the following output:
 
 
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec1960404580/fast"
+/usr/bin/make -f CMakeFiles/cmTryCompileExec1960404580.dir/build.make CMakeFiles/cmTryCompileExec1960404580.dir/build
+make[1]: Entering directory `/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec1960404580.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTryCompileExec1960404580.dir/CheckSymbolExists.c.o   -c /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTryCompileExec1960404580
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1960404580.dir/link.txt --verbose=1
+/usr/bin/cc       CMakeFiles/cmTryCompileExec1960404580.dir/CheckSymbolExists.c.o  -o cmTryCompileExec1960404580 -rdynamic 
+CMakeFiles/cmTryCompileExec1960404580.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+make[1]: *** [cmTryCompileExec1960404580] Error 1
+make[1]: Leaving directory `/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp'
+make: *** [cmTryCompileExec1960404580/fast] Error 2
+
+File /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
