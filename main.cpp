@@ -42,6 +42,7 @@ std::vector<int> findAdjBndryVertsInScan2(int vertIdx);
 
 int findClosestAdjBndryNodeInScan1(std::vector<int> bndryVertices, int myVertexIndex);
 int findClosestAdjBndryNodeInScan2(std::vector<int> bndryVertices, int myVertexIndex);
+bool edgesAreEqual(const Ref<const Eigen::Vector2i>& e1, const Ref<Eigen::Vector2i>& e2);
 
 ///////// PREALLOCATION ///////////////////
 struct Mesh
@@ -106,12 +107,12 @@ int main(int argc, char *argv[])
 /////////////////////////////////////////////////////////////////////////////
 
   std::vector<Eigen::Vector2i> allEdges;
-  std::vector<Eigen::Vector3i> newFaces;
+  std::vector<int> newTriangleFaces;
 
 /*
   [1] solve for a seed edge :: choose a rand point in scan_1, find closest point in scan_2
   [2] keep alternating edge solving , and use the adjacency lists  
-  [3] end once you have the original edge data !
+  [3] end once you have the original edge data ! Add this last face 
  */
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -137,68 +138,77 @@ int main(int argc, char *argv[])
   //std::cout << seedEdge << std::endl;
  
   allEdges.push_back(seedEdge);
-
-  // #TODO :: need a method to tell if there is an existing edge ( in the edges vectors ) 
-///////////////////////////////////////////////////////////////////////////////////////////////
-  // [2] Find shortest adjacent edge, to edge e = (v_1,v_2), and use that to construct the new edge
-///////////////////////////////////////////////////////////////////////////////////////////////
-
-  // actually, just loop, and check vertIsOnBndry ( see ~/include/igl/loop.cpp)
-  // #TODO :: make a method for this!
-
-  //std::cout << " Going to find the set of adj bndry verts to (v_1,v_2) " << std::endl;
-  std::vector<int> bndryVertsNodeOne = findAdjBndryVertsInScan1(scan1SeedPointIndex);
-  std::vector<int> bndryVertsNodeTwo = findAdjBndryVertsInScan2(scan2ClosestPointToSeedIndex);
-
-  // find vertices that are closest to {v_1,v_2} in edge e = (v_1,v_2)
-  int indexClosestAdjBndryNodeToNodeOne = findClosestAdjBndryNodeInScan1(bndryVertsNodeOne,scan1SeedPointIndex);
-  int indexClosestAdjBndryNodeToNodeTwo = findClosestAdjBndryNodeInScan2(bndryVertsNodeTwo,scan2ClosestPointToSeedIndex);
-  //  std::cout << "vertiex adj to boundary vertex [" << scan1SeedPointIndex << "] are : "; 
-  //  printcoll(bndryVertsNodeOne);
-   // std::cout << " The indexClosestAdjBndryNodeToNodeOne is " << indexClosestAdjBndryNodeToNodeOne << std::endl;
-   // return 0;
-
-  // determine which edge is minimal :: the one in scan 1, or scan 2
-  std::cout << "going to find indices of closest adjancet boundary nodes to (v_1,v_2)" << std::endl;
-  Eigen::VectorXd closestAdjBndryNodeToNodeOne = boundaryVertices_scan1.row(indexClosestAdjBndryNodeToNodeOne);
-  Eigen::VectorXd closestAdjBndryNodeToNodeTwo = boundaryVertices_scan2.row(indexClosestAdjBndryNodeToNodeTwo);
-
-  Eigen::VectorXd nodeOne = boundaryVertices_scan1.row(scan1SeedPointIndex);
-  Eigen::VectorXd nodeTwo = boundaryVertices_scan2.row(scan2ClosestPointToSeedIndex);
-
-  //std::cout << " Found closest Adj Bndry Nodes, to (v_1,v_2) " << std::endl;
-
-  int indexOfClosestPoint = -1;
-  double scan1Distance =  (nodeOne - closestAdjBndryNodeToNodeOne).norm();
-  double scan2Distance =  (nodeTwo - closestAdjBndryNodeToNodeTwo).norm();
-  //std::cout << scan1Distance << '\t' << scan2Distance << std::endl;
-  bool isItEdgeInScanOne = (scan1Distance < scan2Distance);
-
-  //std::cout << "Asserted distnace-norm difference on the scans for (v_1,v_2)" << std::endl;
-  
+  Eigen::Vector2i oldEdge = seedEdge;
   Eigen::Vector2i newEdge;
-  Eigen::Vector3i newFace; // #TODO :: ensure that this is correct! 
-  std::vector<int> newTriangleFaces;
 
-  // construct new edge
-  if (isItEdgeInScanOne) {
-      indexOfClosestPoint = indexClosestAdjBndryNodeToNodeOne;
-      newEdge = Eigen::Vector2i(seedEdge(0), indexOfClosestPoint);
- 	  newFace = Eigen::Vector3i(seedEdge(1),newEdge(0), newEdge(1));
-  }
-  else {  
-     indexOfClosestPoint = indexClosestAdjBndryNodeToNodeTwo;
-     // note need to offset here
-     newEdge = Eigen::Vector2i(seedEdge(1), (indexOfClosestPoint + scan1.V.rows()));
- 	 newFace = Eigen::Vector3i(seedEdge(0),newEdge(0), newEdge(1));
+  while(!edgesAreEqual(newEdge,seedEdge))
+  {
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// [2] keep alternating edge solving , and use the adjacency lists  
+	///////////////////////////////////////////////////////////////////////////////////////////////
+
+	//std::cout << " Going to find the set of adj bndry verts to (v_1,v_2) " << std::endl;
+
+    int v_1 = oldEdge(0);
+    //int v_2 = oldEdge(1); // #TODO :: check if offset needed here
+    int v_2 = oldEdge(1) - scan1.V.rows(); 
+	std::vector<int> bndryVertsNodeOne = findAdjBndryVertsInScan1(v_1);
+	std::vector<int> bndryVertsNodeTwo = findAdjBndryVertsInScan2(v_2);
+
+	// find vertices that are closest to {v_1,v_2} in edge e = (v_1,v_2)
+	int indexClosestAdjBndryNodeToNodeOne = findClosestAdjBndryNodeInScan1(bndryVertsNodeOne,v_1);
+	int indexClosestAdjBndryNodeToNodeTwo = findClosestAdjBndryNodeInScan2(bndryVertsNodeTwo,v_2);
+	//  std::cout << "vertiex adj to boundary vertex [" << scan1SeedPointIndex << "] are : "; 
+	//  printcoll(bndryVertsNodeOne);
+	// std::cout << " The indexClosestAdjBndryNodeToNodeOne is " << indexClosestAdjBndryNodeToNodeOne << std::endl;
+	// return 0;
+
+	// determine which edge is minimal :: the one in scan 1, or scan 2
+	std::cout << "going to find indices of closest adjancet boundary nodes to (v_1,v_2)" << std::endl;
+	Eigen::VectorXd closestAdjBndryNodeToNodeOne = boundaryVertices_scan1.row(indexClosestAdjBndryNodeToNodeOne);
+	Eigen::VectorXd closestAdjBndryNodeToNodeTwo = boundaryVertices_scan2.row(indexClosestAdjBndryNodeToNodeTwo);
+
+	Eigen::VectorXd nodeOne = boundaryVertices_scan1.row(v_1);
+	Eigen::VectorXd nodeTwo = boundaryVertices_scan2.row(v_2);
+
+	//std::cout << " Found closest Adj Bndry Nodes, to (v_1,v_2) " << std::endl;
+
+	int indexOfClosestPoint = -1;
+	double scan1Distance =  (nodeOne - closestAdjBndryNodeToNodeOne).norm();
+	double scan2Distance =  (nodeTwo - closestAdjBndryNodeToNodeTwo).norm();
+	//std::cout << scan1Distance << '\t' << scan2Distance << std::endl;
+	bool isItEdgeInScanOne = (scan1Distance < scan2Distance);
+
+	//std::cout << "Asserted distnace-norm difference on the scans for (v_1,v_2)" << std::endl;
+
+	Eigen::Vector3i newFace; // #TODO :: ensure that this is correct! 
+
+	// construct new edge
+	if (isItEdgeInScanOne) {
+		indexOfClosestPoint = indexClosestAdjBndryNodeToNodeOne;
+		newEdge = Eigen::Vector2i(oldEdge(0), indexOfClosestPoint);
+		newFace = Eigen::Vector3i(oldEdge(1),newEdge(0), newEdge(1));
+	}
+	else {  
+		indexOfClosestPoint = indexClosestAdjBndryNodeToNodeTwo;
+		// note need to offset here
+		newEdge = Eigen::Vector2i(oldEdge(1), (indexOfClosestPoint + scan1.V.rows()));
+		newFace = Eigen::Vector3i(oldEdge(0),newEdge(0), newEdge(1));
+	}
+
+	// now that new edge is added, continue on with the algorithm ! 
+	allEdges.push_back(newEdge); 
+	newTriangleFaces.push_back(newFace(0));
+	newTriangleFaces.push_back(newFace(1));
+	newTriangleFaces.push_back(newFace(2));
+    oldEdge = newEdge;
   }
 
-  // now that new edge is added, continue on with the algorithm ! 
-  //std::cout << newEdge << std::endl;
-  allEdges.push_back(newEdge); 
-  newTriangleFaces.push_back(newFace(0));
-  newTriangleFaces.push_back(newFace(1));
-  newTriangleFaces.push_back(newFace(2));
+//////////////////////////////////////////////////////////////////////////
+// [3] end once you have the original edge data ! Add this last face  ///
+//////////////////////////////////////////////////////////////////////////
+// #TODO this step!
+ 
 
   // convert the set of (3*faces) integers, of vertex indices, to a matrix ( for faces data )
   int numOfFaces = newTriangleFaces.size() / 3;
@@ -271,7 +281,13 @@ Eigen::MatrixXd retrieveBoundaryVerticesInScan2(int bndryVerticesIdxs[], int num
   return bndryVertices; 
 }
 
-
+bool edgesAreEqual(const Ref<const Eigen::Vector2i>& e1, const Ref<Eigen::Vector2i>& e2)
+{
+	bool edgesAreEqual = false;
+	double edgeNormDist =  (e1- e2).norm();
+	edgesAreEqual = (edgeNormDist == 0);
+    return edgesAreEqual;
+}
 
 std::vector<int> findAdjBndryVertsInScan1(int vertIdx)
 {
