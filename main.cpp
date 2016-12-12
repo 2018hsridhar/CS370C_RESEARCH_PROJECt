@@ -105,6 +105,9 @@ int main(int argc, char *argv[])
 // #TODO :: test this 
 /////////////////////////////////////////////////////////////////////////////
 
+  std::vector<Eigen::Vector2i> allEdges;
+  std::vector<Eigen::Vector3i> newFaces;
+
 /*
   [1] solve for a seed edge :: choose a rand point in scan_1, find closest point in scan_2
   [2] keep alternating edge solving , and use the adjacency lists  
@@ -131,8 +134,6 @@ int main(int argc, char *argv[])
   Eigen::Vector2i seedEdge = Eigen::Vector2i( scan1SeedPointIndex, scan2ClosestPointToSeedIndex + scan1.V.rows());
   //std::cout << seedEdge << std::endl;
  
-  //std::vector<Eigen::Vector2i, Eigen::aligned_allocator<Eigen::Vector2i>> faces;
-  std::vector<Eigen::Vector2i> allEdges;
   allEdges.push_back(seedEdge);
 
   // need a method to tell if there is an existing edge ( in the edges vectors ) 
@@ -173,33 +174,51 @@ int main(int argc, char *argv[])
   std::cout << "Asserted distnace-norm difference on the scans for (v_1,v_2)" << std::endl;
   
   Eigen::Vector2i newEdge;
+  Eigen::Vector3i newFace; // #TODO :: ensure that this is correct! 
+  std::vector<int> newTriangleFaces;
+
   // construct new edge
   if (isItEdgeInScanOne) {
       indexOfClosestPoint = indexClosestAdjBndryNodeToNodeOne;
       newEdge = Eigen::Vector2i(seedEdge(0), indexOfClosestPoint);
+ 	  newFace = Eigen::Vector3i(seedEdge(1),newEdge(0), newEdge(1));
   }
   else {  
      indexOfClosestPoint = indexClosestAdjBndryNodeToNodeTwo;
      // note need to offset here
      newEdge = Eigen::Vector2i(seedEdge(1), (indexOfClosestPoint + scan1.V.rows()));
+ 	 newFace = Eigen::Vector3i(seedEdge(0),newEdge(0), newEdge(1));
   }
 
   // now that new edge is added, continue on with the algorithm ! 
-  std::cout << newEdge << std::endl;
-  return 0;
+  //std::cout << newEdge << std::endl;
+  allEdges.push_back(newEdge); 
+  newTriangleFaces.push_back(newFace(0));
+  newTriangleFaces.push_back(newFace(1));
+  newTriangleFaces.push_back(newFace(2));
+
+  // convert the set of (3*faces) integers, of vertex indices, to a matrix ( for faces data )
+  int numOfFaces = newTriangleFaces.size() / 3;
+  const Eigen::MatrixXi interpolatedFaces = Eigen::Map<const Eigen::MatrixXi> (&newTriangleFaces[0],numOfFaces,3); //,RowMajor); ( too include ?? not sure ?? ) 
+  std::cout << "faces are " << std::endl;
+  std::cout << interpolatedFaces << std::endl;
+  //return 0;
 
 
 
   // WHERE OLD ALGORITHM USED TO BE ( sectioned off to end of code)
 
   // CREATE ONE HUGE MESH containing the two partial scans and interpolated surface
-  // igl::cat(1,scan1.V,scan2.V,interpolatedSurface.V); # doubel check if this is to be done!
+  igl::cat(1,scan1.V,scan2.V,interpolatedSurface.V); //# doubel check if this is to be done!
   //igl::cat(1,scan1.V,scan2.V,scans.V);
-  //igl::cat(1,scans.V,interpolatedSurface.V,scene.V); 
-  igl::cat(1,scan1.V,scan2.V,scene.V);
+  igl::cat(1,scans.V,interpolatedSurface.V,scene.V); 
+  //igl::cat(1,scan1.V,scan2.V,scene.V);
 
-  interpolatedSurface.F = Eigen::MatrixXi::Zero(totalNumBoundaryVertices,3);   // #TODO :: update this l8r 
+  //interpolatedSurface.F = Eigen::MatrixXi::Zero(totalNumBoundaryVertices,3);   // #TODO :: update this l8r 
   igl::cat(1,scan1.F, MatrixXi(scan2.F.array() + scan1.V.rows()), scans.F);
+  //std::cout << scans.F << std::endl;
+  //std::cout << interpolatedFaces << std::endl;
+  interpolatedSurface.F = interpolatedFaces;
   igl::cat(1,scans.F, interpolatedSurface.F, scene.F);
 
   /***********************************************************/ 
