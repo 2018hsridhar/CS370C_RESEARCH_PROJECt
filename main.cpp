@@ -141,6 +141,7 @@ int main(int argc, char *argv[])
   Eigen::Vector2i oldEdge = seedEdge;
   Eigen::Vector2i newEdge;
 
+  int iter = 0;
   while(!edgesAreEqual(newEdge,seedEdge))
   {
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -148,7 +149,7 @@ int main(int argc, char *argv[])
 	///////////////////////////////////////////////////////////////////////////////////////////////
 
 	//std::cout << " Going to find the set of adj bndry verts to (v_1,v_2) " << std::endl;
-
+    std::cout << "iter [" << iter << "]; edge = " << oldEdge.transpose() << std::endl;
     int v_1 = oldEdge(0);
     //int v_2 = oldEdge(1); // #TODO :: check if offset needed here
     int v_2 = oldEdge(1) - scan1.V.rows(); 
@@ -164,7 +165,7 @@ int main(int argc, char *argv[])
 	// return 0;
 
 	// determine which edge is minimal :: the one in scan 1, or scan 2
-	std::cout << "going to find indices of closest adjancet boundary nodes to (v_1,v_2)" << std::endl;
+	//std::cout << "going to find indices of closest adjancet boundary nodes to (v_1,v_2)" << std::endl;
 	Eigen::VectorXd closestAdjBndryNodeToNodeOne = boundaryVertices_scan1.row(indexClosestAdjBndryNodeToNodeOne);
 	Eigen::VectorXd closestAdjBndryNodeToNodeTwo = boundaryVertices_scan2.row(indexClosestAdjBndryNodeToNodeTwo);
 
@@ -186,14 +187,13 @@ int main(int argc, char *argv[])
 	// construct new edge
 	if (isItEdgeInScanOne) {
 		indexOfClosestPoint = indexClosestAdjBndryNodeToNodeOne;
-		newEdge = Eigen::Vector2i(oldEdge(0), indexOfClosestPoint);
-		newFace = Eigen::Vector3i(oldEdge(1),newEdge(0), newEdge(1));
+		newEdge = Eigen::Vector2i(indexOfClosestPoint, oldEdge(1));
+		newFace = Eigen::Vector3i(indexOfClosestPoint, oldEdge(0),oldEdge(1));
 	}
 	else {  
 		indexOfClosestPoint = indexClosestAdjBndryNodeToNodeTwo;
-		// note need to offset here
-		newEdge = Eigen::Vector2i(oldEdge(1), (indexOfClosestPoint + scan1.V.rows()));
-		newFace = Eigen::Vector3i(oldEdge(0),newEdge(0), newEdge(1));
+		newEdge = Eigen::Vector2i(oldEdge(0), (indexOfClosestPoint + scan1.V.rows()));
+		newFace = Eigen::Vector3i(oldEdge(0),oldEdge(1), (indexOfClosestPoint + scan1.V.rows()));
 	}
 
 	// now that new edge is added, continue on with the algorithm ! 
@@ -201,7 +201,8 @@ int main(int argc, char *argv[])
 	newTriangleFaces.push_back(newFace(0));
 	newTriangleFaces.push_back(newFace(1));
 	newTriangleFaces.push_back(newFace(2));
-    oldEdge = newEdge;
+    oldEdge = newEdge; // #TODO :: fix this update step !
+    iter++;
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -308,8 +309,7 @@ std::vector<int> findAdjBndryVertsInScan2(int vertIdx)
 {
   const std::vector<int>& localAdjListToVertex = Adjacency_Scan2[vertIdx];
   std::vector<int> bndryVertsToTest; 
-  std::cout << " Found adj list " << std::endl;
-  printcoll(localAdjListToVertex); // this is a seg fault ... but why?
+  //std::cout << " Found adj list " << std::endl;
   for ( int i = 0; i < localAdjListToVertex.size(); i++)
   {
       int bndryVertIdx = localAdjListToVertex[i];
@@ -318,7 +318,7 @@ std::vector<int> findAdjBndryVertsInScan2(int vertIdx)
       }
       
   }            
-  std::cout << " Found adj bndry vertices " << std::endl;
+  //std::cout << " Found adj bndry vertices " << std::endl;
   return bndryVertsToTest;
 }
 
