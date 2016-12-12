@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
 
   int iter = 0;
   //while(!edgesAreEqual(newEdge,seedEdge))
-  for ( int k = 0; k < 3 ; k++)
+  for ( int k = 0; k < 2 ; k++)
   {
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// [2] keep alternating edge solving , and use the adjacency lists  
