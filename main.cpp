@@ -114,7 +114,9 @@ int main(int argc, char *argv[])
   [3] end once you have the original edge data !
  */
 
-// [1] solve for a seed edge :: choose a rand point in scan_1, find closest point in scan_2
+///////////////////////////////////////////////////////////////////////////////////////////////
+// [1] solve for a seed edge :: choose a rand point in scan_1, find closest point in scan_2 ///
+///////////////////////////////////////////////////////////////////////////////////////////////
 
 // #TODO :: include a method for getting ( vertex,index ) easily?? seems useful, but l8r 
 
@@ -136,14 +138,15 @@ int main(int argc, char *argv[])
  
   allEdges.push_back(seedEdge);
 
-  // need a method to tell if there is an existing edge ( in the edges vectors ) 
-
+  // #TODO :: need a method to tell if there is an existing edge ( in the edges vectors ) 
+///////////////////////////////////////////////////////////////////////////////////////////////
   // [2] Find shortest adjacent edge, to edge e = (v_1,v_2), and use that to construct the new edge
+///////////////////////////////////////////////////////////////////////////////////////////////
 
   // actually, just loop, and check vertIsOnBndry ( see ~/include/igl/loop.cpp)
   // #TODO :: make a method for this!
 
-  std::cout << " Going to find the set of adj bndry verts to (v_1,v_2) " << std::endl;
+  //std::cout << " Going to find the set of adj bndry verts to (v_1,v_2) " << std::endl;
   std::vector<int> bndryVertsNodeOne = findAdjBndryVertsInScan1(scan1SeedPointIndex);
   std::vector<int> bndryVertsNodeTwo = findAdjBndryVertsInScan2(scan2ClosestPointToSeedIndex);
 
@@ -163,7 +166,7 @@ int main(int argc, char *argv[])
   Eigen::VectorXd nodeOne = boundaryVertices_scan1.row(scan1SeedPointIndex);
   Eigen::VectorXd nodeTwo = boundaryVertices_scan2.row(scan2ClosestPointToSeedIndex);
 
-  std::cout << " Found closest Adj Bndry Nodes, to (v_1,v_2) " << std::endl;
+  //std::cout << " Found closest Adj Bndry Nodes, to (v_1,v_2) " << std::endl;
 
   int indexOfClosestPoint = -1;
   double scan1Distance =  (nodeOne - closestAdjBndryNodeToNodeOne).norm();
@@ -171,7 +174,7 @@ int main(int argc, char *argv[])
   //std::cout << scan1Distance << '\t' << scan2Distance << std::endl;
   bool isItEdgeInScanOne = (scan1Distance < scan2Distance);
 
-  std::cout << "Asserted distnace-norm difference on the scans for (v_1,v_2)" << std::endl;
+  //std::cout << "Asserted distnace-norm difference on the scans for (v_1,v_2)" << std::endl;
   
   Eigen::Vector2i newEdge;
   Eigen::Vector3i newFace; // #TODO :: ensure that this is correct! 
@@ -199,26 +202,12 @@ int main(int argc, char *argv[])
 
   // convert the set of (3*faces) integers, of vertex indices, to a matrix ( for faces data )
   int numOfFaces = newTriangleFaces.size() / 3;
-  const Eigen::MatrixXi interpolatedFaces = Eigen::Map<const Eigen::MatrixXi> (&newTriangleFaces[0],numOfFaces,3); //,RowMajor); ( too include ?? not sure ?? ) 
-  std::cout << "faces are " << std::endl;
-  std::cout << interpolatedFaces << std::endl;
-  //return 0;
-
-
+  interpolatedSurface.F = Eigen::Map<Eigen::MatrixXi> (&newTriangleFaces[0],numOfFaces,3); //,RowMajor); ( too include ?? not sure ?? ) 
 
   // WHERE OLD ALGORITHM USED TO BE ( sectioned off to end of code)
-
   // CREATE ONE HUGE MESH containing the two partial scans and interpolated surface
-  igl::cat(1,scan1.V,scan2.V,interpolatedSurface.V); //# doubel check if this is to be done!
-  //igl::cat(1,scan1.V,scan2.V,scans.V);
-  igl::cat(1,scans.V,interpolatedSurface.V,scene.V); 
-  //igl::cat(1,scan1.V,scan2.V,scene.V);
-
-  //interpolatedSurface.F = Eigen::MatrixXi::Zero(totalNumBoundaryVertices,3);   // #TODO :: update this l8r 
+  igl::cat(1,scan1.V,scan2.V,scene.V);
   igl::cat(1,scan1.F, MatrixXi(scan2.F.array() + scan1.V.rows()), scans.F);
-  //std::cout << scans.F << std::endl;
-  //std::cout << interpolatedFaces << std::endl;
-  interpolatedSurface.F = interpolatedFaces;
   igl::cat(1,scans.F, interpolatedSurface.F, scene.F);
 
   /***********************************************************/ 
