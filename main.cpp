@@ -42,8 +42,6 @@ std::vector<int> findAdjBndryVertsInScan2(int vertIdx);
 
 int findClosestAdjBndryNodeInScan1(std::vector<int> bndryVertices, int myVertexIndex, int prev_v1);
 int findClosestAdjBndryNodeInScan2(std::vector<int> bndryVertices, int myVertexIndex, int prev_v2);
-//int findClosestAdjBndryNodeInScan1(std::vector<int> bndryVertices, int myVertexIndex);
-//int findClosestAdjBndryNodeInScan2(std::vector<int> bndryVertices, int myVertexIndex);
 bool edgesAreEqual(const Ref<const Eigen::Vector2i>& e1, const Ref<Eigen::Vector2i>& e2);
 
 ///////// PREALLOCATION ///////////////////
@@ -65,11 +63,11 @@ Eigen::MatrixXd boundaryVertices_scan2;
 
 int main(int argc, char *argv[])
 {
-  //if(!readOFF(TUTORIAL_SHARED_PATH "/camelhead.off",scan1.V,scan1.F))
+  //if(!readOFF(TUTORIAL_SHARED_PATH "/camelhead.off",scan1.V,scan1.F)) {
   if(!readOFF(TUTORIAL_SHARED_PATH "/planexy.off",scan1.V,scan1.F)) {
     cout<<"Failed to load partial scan one."<<endl;
   } 
-  //if(!readOFF(TUTORIAL_SHARED_PATH "/camelhead2.off",scan2.V,scan2.F))
+  //if(!readOFF(TUTORIAL_SHARED_PATH "/camelhead2.off",scan2.V,scan2.F)) {
   if(!readOFF(TUTORIAL_SHARED_PATH "/planexy2.off",scan2.V,scan2.F)) {
     cout<<"Failed to load partial scan two."<<endl;
   }
@@ -136,20 +134,16 @@ int main(int argc, char *argv[])
 									closestPointsFrom_Scan1_To_Scan2);
 
   //int scan2ClosestPointToSeedIndex = smallestDistIndxs(0); // this is wrong! you're indexing into your boundaryVertices!
-  int scan2ClosestPointToSeedIndex = boundaryVerticesIdxs_scan2_array[smallestDistIndxs(0)]; // this is wrong! you're indexing into your boundaryVertices!
-  std::cout << scan2ClosestPointToSeedIndex << std::endl;
-  for ( const auto &c : boundaryVerticesIdxs_scan2_array)
-      cout << c << " ";
-  cout << endl;
+  int scan2ClosestPointToSeedIndex = boundaryVerticesIdxs_scan2_array[smallestDistIndxs(0)];
   Eigen::Vector2i seedEdge = Eigen::Vector2i( scan1SeedPointIndex, scan2ClosestPointToSeedIndex + scan1.V.rows());
-  std::cout << seedEdge << std::endl;
  
   allEdges.push_back(seedEdge);
   Eigen::Vector2i oldEdge = seedEdge;
   Eigen::Vector2i newEdge;
 
   int iter = 0;
-  while(!edgesAreEqual(newEdge,seedEdge))
+  //while(!edgesAreEqual(newEdge,seedEdge))
+  for ( int k = 0; k < 3 ; k++)
   {
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// [2] keep alternating edge solving , and use the adjacency lists  
@@ -159,7 +153,7 @@ int main(int argc, char *argv[])
     std::cout << "iter [" << iter << "]; edge = " << oldEdge.transpose() << std::endl;
     int v_1 = oldEdge(0);
     int v_2 = oldEdge(1) - scan1.V.rows(); 
-    std::cout << v_1 << "\t\t" << v_2 << std::endl;
+    //std::cout << v_1 << "\t\t" << v_2 << std::endl;
 	std::vector<int> bndryVertsNodeOne = findAdjBndryVertsInScan1(v_1);
 	std::vector<int> bndryVertsNodeTwo = findAdjBndryVertsInScan2(v_2);
 
@@ -167,6 +161,7 @@ int main(int argc, char *argv[])
     // and prevent thyself from using the 2nd-to-last edge ( else, this algo fails to converge ) !
 	int indexClosestAdjBndryNodeToNodeOne;
 	int indexClosestAdjBndryNodeToNodeTwo;
+  // the bug LIES HERE ... u need to be careful about this index ( its specifically for adj, bndry vertices ... can't just go over all bndry vertices ) 
     if(allEdges.size() >= 2 ) 
     {
 		Eigen::Vector2i previousEdge = allEdges[allEdges.size() - 2];
@@ -181,8 +176,8 @@ int main(int argc, char *argv[])
 
 
 	//  std::cout << "vertiex adj to boundary vertex [" << scan1SeedPointIndex << "] are : "; 
-	  printcoll(bndryVertsNodeOne);
-	  printcoll(bndryVertsNodeTwo);
+	 // printcoll(bndryVertsNodeOne);
+	 // printcoll(bndryVertsNodeTwo);
 	// std::cout << " The indexClosestAdjBndryNodeToNodeOne is " << indexClosestAdjBndryNodeToNodeOne << std::endl;
 	// return 0;
 
@@ -199,9 +194,9 @@ int main(int argc, char *argv[])
 	int indexOfClosestPoint = -1;
 	//std::cout << nodeOne.transpose() << '\t' << '\t' << closestAdjBndryNodeToNodeOne.transpose() << std::endl;
 	//std::cout << nodeTwo.transpose() << '\t' << '\t' << closestAdjBndryNodeToNodeTwo.transpose() << std::endl;
-	double scan1Distance =  (nodeOne - closestAdjBndryNodeToNodeOne).norm();
-	double scan2Distance =  (nodeTwo - closestAdjBndryNodeToNodeTwo).norm();
-	//std::cout << scan1Distance << '\t' << scan2Distance << std::endl;
+	double scan1Distance =  (nodeOne - closestAdjBndryNodeToNodeOne).squaredNorm();
+	double scan2Distance =  (nodeTwo - closestAdjBndryNodeToNodeTwo).squaredNorm();
+	std::cout << scan1Distance << '\t' << scan2Distance << std::endl;
 	bool isItEdgeInScanOne = (scan1Distance < scan2Distance);
 
 	//std::cout << "Asserted distnace-norm difference on the scans for (v_1,v_2)" << std::endl;
@@ -212,12 +207,12 @@ int main(int argc, char *argv[])
 	if (isItEdgeInScanOne) {
 		indexOfClosestPoint = indexClosestAdjBndryNodeToNodeOne;
 		newEdge = Eigen::Vector2i(indexOfClosestPoint, oldEdge(1));
-		newFace = Eigen::Vector3i(indexOfClosestPoint, oldEdge(0),oldEdge(1));
+		newFace = Eigen::Vector3i(oldEdge(0),indexOfClosestPoint,oldEdge(1));
 	}
 	else {  
 		indexOfClosestPoint = indexClosestAdjBndryNodeToNodeTwo;
 		newEdge = Eigen::Vector2i(oldEdge(0), (indexOfClosestPoint + scan1.V.rows()));
-		newFace = Eigen::Vector3i(oldEdge(0),oldEdge(1), (indexOfClosestPoint + scan1.V.rows()));
+		newFace = Eigen::Vector3i(oldEdge(0),(indexOfClosestPoint + scan1.V.rows()), oldEdge(1));
 	}
 
 	// now that new edge is added, continue on with the algorithm ! 
@@ -237,7 +232,9 @@ int main(int argc, char *argv[])
 
   // convert the set of (3*faces) integers, of vertex indices, to a matrix ( for faces data )
   int numOfFaces = newTriangleFaces.size() / 3;
-  interpolatedSurface.F = Eigen::Map<Eigen::MatrixXi> (&newTriangleFaces[0],numOfFaces,3); //,RowMajor); ( too include ?? not sure ?? ) 
+  Eigen::MatrixXi faces = Eigen::Map<Eigen::MatrixXi,RowMajor> (&newTriangleFaces[0],3,numOfFaces); // this is not right !
+  interpolatedSurface.F = faces.transpose();
+  std::cout << interpolatedSurface.F << std::endl;
 
   // WHERE OLD ALGORITHM USED TO BE ( sectioned off to end of code)
   // CREATE ONE HUGE MESH containing the two partial scans and interpolated surface
@@ -346,11 +343,8 @@ std::vector<int> findAdjBndryVertsInScan2(int vertIdx)
   return bndryVertsToTest;
 }
 
-// note :: does adjacent list, list vertices to be self-adjacent? I hope not ..., else I get a bug here!
 // note :: I assume that "myVertexIndex" is guaranteed to be an index to a boundary Vertex!
-// note :: I lvoe the cool ( vectors are essentially arrays ) trick! 
 int findClosestAdjBndryNodeInScan1(std::vector<int> bndryVertices, int myVertexIndex, int prev_v1)
-//int findClosestAdjBndryNodeInScan1(std::vector<int> bndryVertices, int myVertexIndex)
 {
     int closestAdjBndryPoint = -1; 
     Eigen::MatrixXd closestAdjBoundaryPoint;
@@ -361,9 +355,6 @@ int findClosestAdjBndryNodeInScan1(std::vector<int> bndryVertices, int myVertexI
 
 	Eigen::MatrixXd adjBndryVertices = retrieveBoundaryVerticesInScan1(&bndryVertices[0], bndryVertices.size());
 
-    //std::cout << myVertex << std::endl;
-    //std::cout << adjBndryVertices << std::endl; ( you index into this matrix ! ) 
-
 	Eigen::VectorXi Ele = Eigen::VectorXi::LinSpaced(adjBndryVertices.rows(), 0, adjBndryVertices.rows() - 1);
 	Eigen::VectorXd smallestSquaredDists;
 	Eigen::VectorXi smallestDistIndxs;
@@ -371,24 +362,21 @@ int findClosestAdjBndryNodeInScan1(std::vector<int> bndryVertices, int myVertexI
                                  Ele,
                   				smallestSquaredDists,smallestDistIndxs,
                   				closestAdjBoundaryPoint);
-    //std::cout << "smallest Dist indx = " << smallestDistIndxs << std::endl;
-    //closestAdjBndryPoint = smallestDistIndxs(0,0); 
-    closestAdjBndryPoint = bndryVertices[smallestDistIndxs(0,0)]; 
+    closestAdjBndryPoint = bndryVertices[smallestDistIndxs(0)]; 
+    std::cout << "closestAdjBndryPoint is "  << closestAdjBndryPoint << std::endl;
     return closestAdjBndryPoint; 
 }
 
-//int findClosestAdjBndryNodeInScan2(std::vector<int> bndryVertices, int myVertexIndex)
 int findClosestAdjBndryNodeInScan2(std::vector<int> bndryVertices, int myVertexIndex, int prev_v2)
 {
     int closestAdjBndryPoint = -1; 
     Eigen::MatrixXd closestAdjBoundaryPoint;
     Eigen::MatrixXd myVertex = scan2.V.row(myVertexIndex);
 
-
 	// eliminate (prev_v2) from bndryVertices
     bndryVertices.erase(std::remove(bndryVertices.begin(), bndryVertices.end(), prev_v2), bndryVertices.end());
 
-	Eigen::MatrixXd adjBndryVertices = retrieveBoundaryVerticesInScan1(&bndryVertices[0], bndryVertices.size());
+	Eigen::MatrixXd adjBndryVertices = retrieveBoundaryVerticesInScan2(&bndryVertices[0], bndryVertices.size());
 	Eigen::VectorXi Ele = Eigen::VectorXi::LinSpaced(adjBndryVertices.rows(), 0, adjBndryVertices.rows() - 1);
 	Eigen::VectorXd smallestSquaredDists;
 	Eigen::VectorXi smallestDistIndxs;
@@ -396,7 +384,9 @@ int findClosestAdjBndryNodeInScan2(std::vector<int> bndryVertices, int myVertexI
                                  Ele,
                   				smallestSquaredDists,smallestDistIndxs,
                   				closestAdjBoundaryPoint);
-    closestAdjBndryPoint = smallestDistIndxs(0,0); 
+    //std::cout << "idx = " << smallestDistIndxs(0) << std::endl;
+    closestAdjBndryPoint = bndryVertices[smallestDistIndxs(0)]; 
+    std::cout << "closestAdjBndryPoint is "  << closestAdjBndryPoint << std::endl;
     return closestAdjBndryPoint; 
 }
 
