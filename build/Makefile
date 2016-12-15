@@ -255,6 +255,30 @@ main.cpp.s:
 	$(MAKE) -f CMakeFiles/example_bin.dir/build.make CMakeFiles/example_bin.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+meanCurvatureFlow.o: meanCurvatureFlow.cpp.o
+.PHONY : meanCurvatureFlow.o
+
+# target to build an object file
+meanCurvatureFlow.cpp.o:
+	$(MAKE) -f CMakeFiles/example_bin.dir/build.make CMakeFiles/example_bin.dir/meanCurvatureFlow.cpp.o
+.PHONY : meanCurvatureFlow.cpp.o
+
+meanCurvatureFlow.i: meanCurvatureFlow.cpp.i
+.PHONY : meanCurvatureFlow.i
+
+# target to preprocess a source file
+meanCurvatureFlow.cpp.i:
+	$(MAKE) -f CMakeFiles/example_bin.dir/build.make CMakeFiles/example_bin.dir/meanCurvatureFlow.cpp.i
+.PHONY : meanCurvatureFlow.cpp.i
+
+meanCurvatureFlow.s: meanCurvatureFlow.cpp.s
+.PHONY : meanCurvatureFlow.s
+
+# target to generate assembly for a file
+meanCurvatureFlow.cpp.s:
+	$(MAKE) -f CMakeFiles/example_bin.dir/build.make CMakeFiles/example_bin.dir/meanCurvatureFlow.cpp.s
+.PHONY : meanCurvatureFlow.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -278,6 +302,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... meanCurvatureFlow.o"
+	@echo "... meanCurvatureFlow.i"
+	@echo "... meanCurvatureFlow.s"
 .PHONY : help
 
 

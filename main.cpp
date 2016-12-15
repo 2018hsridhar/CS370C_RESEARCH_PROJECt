@@ -16,6 +16,7 @@
 #include <igl/adjacency_list.h>
 #include <igl/slice.h>
 #include <igl/slice_mask.h>
+#include <igl/boundary_loop.h>
 
 #include <igl/is_border_vertex.h>
 #include <set> 
@@ -72,6 +73,14 @@ int main(int argc, char *argv[])
     cout<<"Failed to load partial scan two."<<endl;
   }
 
+   // just use boundary_loop! my god!
+  Eigen::VectorXi bnd;
+  igl::boundary_loop(scan1.F,bnd); // literally,just use this! does so much work for u!!! ordered, set of indices, just of cardinality of total # of bndry vertices!
+  std::cout << bnd << std::endl;
+
+  return 0;
+
+/*
   // SOLVE for vertex adjacency lists of the two partial scans 
   // USED to determine minimal edges in surface reconstruction algo
   igl::adjacency_list(scan1.F,Adjacency_Scan1);
@@ -96,6 +105,9 @@ int main(int argc, char *argv[])
   // CONSTRUCT the sets of boundary vertices
   boundaryVertices_scan1 = retrieveBoundaryVerticesInScan1(boundaryVerticesIdxs_scan1_array,numBoundaryVerticesScan1);
   boundaryVertices_scan2 = retrieveBoundaryVerticesInScan2(boundaryVerticesIdxs_scan2_array,numBoundaryVerticesScan2);
+
+*/
+
  // #TODO :: assert correctness of this!
 
   //std::cout << " boundary vertices, scan 1 are " << std::endl;
@@ -106,8 +118,11 @@ int main(int argc, char *argv[])
 // #TODO :: test this 
 /////////////////////////////////////////////////////////////////////////////
 
+/*
   std::vector<Eigen::Vector2i> allEdges;
+  std::vector<Eigen::Vector2i> visitedLegs;
   std::vector<int> newTriangleFaces;
+*/
 
 /*
   [1] solve for a seed edge :: choose a rand point in scan_1, find closest point in scan_2
@@ -121,6 +136,7 @@ int main(int argc, char *argv[])
 
 // #TODO :: include a method for getting ( vertex,index ) easily?? seems useful, but l8r 
 
+/*
   int scan1SeedPointIndex = boundaryVerticesIdxs_scan1_array[0];
   Eigen::MatrixXd scan1SeedPoint = boundaryVertices_scan1.row(0);  
 
@@ -161,7 +177,10 @@ int main(int argc, char *argv[])
     // and prevent thyself from using the 2nd-to-last edge ( else, this algo fails to converge ) !
 	int indexClosestAdjBndryNodeToNodeOne;
 	int indexClosestAdjBndryNodeToNodeTwo;
-  // the bug LIES HERE ... u need to be careful about this index ( its specifically for adj, bndry vertices ... can't just go over all bndry vertices ) 
+
+  // the bug LIES HERE ... u need to be careful about this index, as 
+	// [1]  ( its specifically for adj, bndry vertices ... can't just go over all bndry vertices ) 
+	// [2]  ( ensure index represnets a new leg ... do not want to use an existing leg, else convergence guarantee is no longer available ) 
     if(allEdges.size() >= 2 ) 
     {
 		Eigen::Vector2i previousEdge = allEdges[allEdges.size() - 2];
@@ -202,18 +221,26 @@ int main(int argc, char *argv[])
 	//std::cout << "Asserted distnace-norm difference on the scans for (v_1,v_2)" << std::endl;
 
 	Eigen::Vector3i newFace; // #TODO :: ensure that this is correct! 
+    Eigen::Vector2i usedLeg;
+    Eigen::Vector2i usedLegPrime;
 
 	// construct new edge
 	if (isItEdgeInScanOne) {
 		indexOfClosestPoint = indexClosestAdjBndryNodeToNodeOne;
 		newEdge = Eigen::Vector2i(indexOfClosestPoint, oldEdge(1));
-		newFace = Eigen::Vector3i(oldEdge(0),indexOfClosestPoint,oldEdge(1));
+		//newFace = Eigen::Vector3i(oldEdge(0),indexOfClosestPoint,oldEdge(1));
+		newFace = Eigen::Vector3i(oldEdge(0),oldEdge(1),indexOfClosestPoint);
 	}
 	else {  
 		indexOfClosestPoint = indexClosestAdjBndryNodeToNodeTwo;
 		newEdge = Eigen::Vector2i(oldEdge(0), (indexOfClosestPoint + scan1.V.rows()));
-		newFace = Eigen::Vector3i(oldEdge(0),(indexOfClosestPoint + scan1.V.rows()), oldEdge(1));
+		//newFace = Eigen::Vector3i(oldEdge(0),(indexOfClosestPoint + scan1.V.rows()), oldEdge(1));
+		newFace = Eigen::Vector3i(oldEdge(0),oldEdge(1),(indexOfClosestPoint + scan1.V.rows()));
 	}
+    usedLeg = (oldEdge(0),oldEdge(1));
+    usedLegPrime = (oldEdge(1),oldEdge(0));
+    visitedLegs.push_back(usedLeg);
+    visitedLegs.push_back(usedLegPrime);
 
 	// now that new edge is added, continue on with the algorithm ! 
 	allEdges.push_back(newEdge); 
@@ -223,13 +250,14 @@ int main(int argc, char *argv[])
     oldEdge = newEdge; // #TODO :: fix this update step !
     iter++;
   }
+*/
 
 //////////////////////////////////////////////////////////////////////////
 // [3] end once you have the original edge data ! Add this last face  ///
 //////////////////////////////////////////////////////////////////////////
 // #TODO this step!
  
-
+/*
   // convert the set of (3*faces) integers, of vertex indices, to a matrix ( for faces data )
   int numOfFaces = newTriangleFaces.size() / 3;
   Eigen::MatrixXi faces = Eigen::Map<Eigen::MatrixXi,RowMajor> (&newTriangleFaces[0],3,numOfFaces); // this is not right !
@@ -241,7 +269,7 @@ int main(int argc, char *argv[])
   igl::cat(1,scan1.V,scan2.V,scene.V);
   igl::cat(1,scan1.F, MatrixXi(scan2.F.array() + scan1.V.rows()), scans.F);
   igl::cat(1,scans.F, interpolatedSurface.F, scene.F);
-
+*/
   /***********************************************************/ 
   // SETUP LibIgl Viewer 
   /***********************************************************/ 
@@ -351,7 +379,7 @@ int findClosestAdjBndryNodeInScan1(std::vector<int> bndryVertices, int myVertexI
     Eigen::MatrixXd myVertex = scan1.V.row(myVertexIndex);
 
 	// eliminate (prev_v1) from bndryVertices
-    bndryVertices.erase(std::remove(bndryVertices.begin(), bndryVertices.end(), prev_v1), bndryVertices.end());
+    //bndryVertices.erase(std::remove(bndryVertices.begin(), bndryVertices.end(), prev_v1), bndryVertices.end());
 
 	Eigen::MatrixXd adjBndryVertices = retrieveBoundaryVerticesInScan1(&bndryVertices[0], bndryVertices.size());
 
@@ -374,7 +402,7 @@ int findClosestAdjBndryNodeInScan2(std::vector<int> bndryVertices, int myVertexI
     Eigen::MatrixXd myVertex = scan2.V.row(myVertexIndex);
 
 	// eliminate (prev_v2) from bndryVertices
-    bndryVertices.erase(std::remove(bndryVertices.begin(), bndryVertices.end(), prev_v2), bndryVertices.end());
+    //bndryVertices.erase(std::remove(bndryVertices.begin(), bndryVertices.end(), prev_v2), bndryVertices.end());
 
 	Eigen::MatrixXd adjBndryVertices = retrieveBoundaryVerticesInScan2(&bndryVertices[0], bndryVertices.size());
 	Eigen::VectorXi Ele = Eigen::VectorXi::LinSpaced(adjBndryVertices.rows(), 0, adjBndryVertices.rows() - 1);
