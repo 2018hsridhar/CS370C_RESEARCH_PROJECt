@@ -80,8 +80,8 @@ int main(int argc, char *argv[])
 
   // SOLVE for vertex adjacency lists of the two partial scans 
   // USED to determine minimal edges in surface reconstruction algo
-  igl::adjacency_list(scan1.F,Adjacency_Scan1);
-  igl::adjacency_list(scan2.F,Adjacency_Scan2);
+  //igl::adjacency_list(scan1.F,Adjacency_Scan1);
+  //igl::adjacency_list(scan2.F,Adjacency_Scan2);
 
 /*
   // discover boundary vertices
@@ -136,7 +136,6 @@ std::vector<int> newTriangleFaces;
   return 0;
 */
 
-
   Eigen::VectorXi bndScan2;
   igl::boundary_loop(scan1.F,bndScan2); 
   Eigen::MatrixXd bndVerts2;
@@ -152,7 +151,7 @@ std::vector<int> newTriangleFaces;
 // [1] solve for a seed edge :: choose a rand point in scan_1, find closest point in scan_2 ///
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-  int scan1SeedIdx = bndScan1(0);
+  int scan1SeedIdx = bndScan1(0); // i, @ thsi point, itself, is 0 
   Eigen::MatrixXd scan1SeedPoint = bndVerts1.row(0);
 
   Eigen::MatrixXd closestPointToSeedInScan2;
@@ -164,39 +163,59 @@ std::vector<int> newTriangleFaces;
 									smallestSquaredDists,smallestDistIndxs,
 									closestPointToSeedInScan2);
 
-  std::cout << "Index = " << smallestDistIndxs(0) << std::endl;  
+  //std::cout << "Index = " << smallestDistIndxs(0) << std::endl;  
   int scan2ClosestPointToSeedIndex = bndScan2(smallestDistIndxs(0));
   Eigen::Vector2i seedEdge = Eigen::Vector2i( scan1SeedIdx, scan2ClosestPointToSeedIndex + scan1.V.rows());
  
   allEdges.push_back(seedEdge);
-  Eigen::Vector2i oldEdge = seedEdge;
   Eigen::Vector2i newEdge;
 
   std::cout << seedEdge.transpose() << std::endl;
 
 // [2] keep alternating edge solving , and use the adjacency lists  
+	int i = scan1SeedIdx;
+	int j = scan2ClosestPointToSeedIndex; 
 
-    int p_i = oldEdge(0);
-    int q_j = oldEdge(1) - scan1.V.rows(); // a standard to be kept here!
+    do
+    {
+		int p_i = bndScan1(i);
+		int q_j = bndScan2(j);
+   		std::cout << i << "\t\t" << j << std::endl;
+    	std::cout << p_i << "\t\t" << q_j << std::endl;
 
-    std::cout << p_i << "\t\t" << q_j << std::endl;
+        int p_i_plus_1 = bndScan1(i+1);
+        int q_j_plus_1 = bndScan2(j+1);
 
-	//std::vector<int> bndryVertsNodeOne = findAdjBndryVertsInScan1(v_1);
-	//std::vector<int> bndryVertsNodeTwo = findAdjBndryVertsInScan2(v_2);
+ 		//  assess d(b_p_i, b_p_i_plus_1) <= d(b_q_j, b_q_j_plus_1)
+	    Eigen::VectorXd vertex_b_1_i = bndVerts1.row(p_i);
+		Eigen::VectorXd vertex_b_2_j = bndVerts2.row(q_i);
 
-	// find vertices that are closest to {v_1,v_2} in edge e = (v_1,v_2)
-    // and prevent thyself from using the 2nd-to-last edge ( else, this algo fails to converge ) !
-	int indexClosestAdjBndryNodeToNodeOne;
-	int indexClosestAdjBndryNodeToNodeTwo;
+		Eigen::VectorXd vertex_b_1_i_plus_1 = bndVerts1.row(p_i_plus_1);
+		Eigen::VectorXd vertex_b_2_j_plus_1 = bndVerts2.row(q_i_plus_1);
 
+		double scan1Distance =  (vertex_b_1_i - vertex_b_1_i_plus_1).squaredNorm();
+		double scan2Distance =  (vertex_b_2_j - vertex_b_2_j_plus_1).squaredNorm();
+		//std::cout << scan1Distance << '\t' << scan2Distance << std::endl;
+		bool isItEdgeInScanOne = (scan1Distance < scan2Distance);
+		// construct new edge
+		Eigen::Vector3i newFace; 			// #TODO :: ensure that this is correct! 
+		if (isItEdgeInScanOne) {
+			newEdge = Eigen::Vector2i(p_i_plus_1, (q_j + scan1.V.rows()));
+			newFace = Eigen::Vector3i(p_i,(q_j + scan1.V.rows()),p_i_plus_1);
+			i = (i + 1) % numBoundaryVerticesScan1;
+		}
+		else {  
+			newEdge = Eigen::Vector2i(p_i, (q_j_plus_1+ scan1.V.rows()));
+			newFace = Eigen::Vector3i(p_i,q_j,,(q_j_plus_1+ scan1.V.rows()));
+			j = (j + 1) % numBoundaryVerticesScan2;
+		}
 
-
-
-    
-
-
-
-
+		// now that new edge is added, continue on with the algorithm ! 
+		allEdges.push_back(newEdge); 
+		newTriangleFaces.push_back(newFace(0));
+		newTriangleFaces.push_back(newFace(1));
+		newTriangleFaces.push_back(newFace(2));
+    } while(!edgesAreEqual(newEdge,seedEdge))
 
 /*
   int scan1SeedPointIndex = boundaryVerticesIdxs_scan1_array[0];
