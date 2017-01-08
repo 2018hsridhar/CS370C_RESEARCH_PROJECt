@@ -1,12 +1,12 @@
-#include <igl/readSTL.h>
-#include <igl/readOFF.h>
-#include <igl/readOBJ.h>
+//#include <igl/readSTL.h>
+//#include <igl/readOFF.h>
+//#include <igl/readOBJ.h>
 
-#include <igl/writeSTL.h>
-#include <igl/viewer/Viewer.h>
+//#include <igl/writeSTL.h>
+//#include <igl/viewer/Viewer.h>
 #include "tutorial_shared_path.h"
 #include <igl/rotation_matrix_from_directions.h>
-#include <igl/writeOFF.h>
+//#include <igl/writeOFF.h>
 #include <igl/per_vertex_normals.h>
 #include <igl/point_mesh_squared_distance.h>
 #include <igl/cotmatrix.h>
@@ -42,7 +42,7 @@ bool meshHasBoundary();
 void applyMeanCurvatureFlow();
 */
 
-bool meshHasBoundary(Ref<MatrixXd>& V, Ref<MatrixXi>& F)
+bool meshHasBoundary(const Eigen::MatrixXd& V, const Eigen::MatrixXi& F)
 {
 	unsigned int boundaryCount = 0;	
     std::vector<bool> boundaryVerticesStatus = igl::is_border_vertex(V, F);  
@@ -84,9 +84,12 @@ bool key_down( igl::viewer::Viewer& viewer, unsigned char key, int modifier)
   } 
   return false;
 }
+*/
 
+//void applyOneTimeStepOfMcfBoundaryCase(const Eigen::MatrixXd& V, const Eigen::MatrixXi &F)
 void applyOneTimeStepOfMcfBoundaryCase()
 {
+/*
         Eigen::SparseMatrix<double> A = ( massMatrix_iterK - ( delta * stiffnessMatrix_iterK ));
 		Eigen::MatrixXd B = ( massMatrix_iterK * V_mcf); 
 	//	std::cout << " [1] Caluclated (M-delta*L) and (M*v) matrices \n";
@@ -128,7 +131,7 @@ void applyOneTimeStepOfMcfBoundaryCase()
 */
 /*
         int boundaryCount = 0;	
-        std::vector<bool> boundaryVerticesStatus = igl::is_border_vertex(V_mcf, F_one);  
+        std::vector<bool> boundaryVerticesStatus = igl::is_border_vertex(V_mcf,F_mcf);
 		for (auto i: boundaryVerticesStatus) {
             if ( i == true)
                 boundaryCount++;
@@ -147,15 +150,17 @@ void applyOneTimeStepOfMcfBoundaryCase()
 
  		// update mass matrix
 		igl::MassMatrixType mcfType = igl::MASSMATRIX_TYPE_BARYCENTRIC;
-		igl::massmatrix(V_mcf,F_one, mcfType, massMatrix_iterK);  
+		igl::massmatrix(V_mcf,F_mcf, mcfType, massMatrix_iterK);  
 		//std::cout << "[3] Succesfully updated mass matrix \n";
 
-		k += 1;
+		//k += 1;
 		//std::cout << " [5] Finished iteration "<< (k-1) << "." <<  std::endl;
+*/
 }
 
-void applyOneTimeStepOfMcfWatertightCase()
+void applyOneTimeStepOfMcfWatertightCase(const Eigen::MatrixXd& V, const Eigen::MatrixXi &F)
 {
+/*
 		Eigen::SparseMatrix<double> A = ( massMatrix_iterK - ( delta * stiffnessMatrix_iterK ));
 		Eigen::MatrixXd B = ( massMatrix_iterK * V_mcf); 
 	//	std::cout << " [1] Caluclated (M-delta*L) and (M*v) matrices \n";
@@ -194,8 +199,10 @@ void applyOneTimeStepOfMcfWatertightCase()
 		//std::cout << "[4] Rescaled by mesh volume / unit area \n"; 
 		k += 1;
 		//std::cout << " [5] Finished iteration "<< (k-1) << "." <<  std::endl;
+*/
 }
 
+/*
 int main(int argc, char *argv[])
 {
 
@@ -222,29 +229,43 @@ int main(int argc, char *argv[])
 
   return 0;
 }
-void applyMeanCurvatureFlow()
+*/
+
+void applyMeanCurvatureFlow(const Eigen::MatrixXd& V, const Eigen::MatrixXi &F)
 {
   // CALCUALTE initial mass and stiffness matrices
-  igl::cotmatrix(V_one,F_one, stiffnessMatrix_iterK );  
-  igl::MassMatrixType mcfType = igl::MASSMATRIX_TYPE_BARYCENTRIC;
-  igl::massmatrix(V_one,F_one, mcfType, massMatrix_iterK);  
+/*
 
-  // #TODO :: like Kazhdan, I need to identify numerical instabilities ( terminate this algorithm early ) 
-  bool haveBndryVertices= meshHasBoundary();
+.... a bug here must be fixed later ! ...
+
+  igl::cotmatrix(V,F, stiffnessMatrix_iterK );  
+  igl::MassMatrixType mcfType = igl::MASSMATRIX_TYPE_BARYCENTRIC;
+  igl::massmatrix(V,F, mcfType, massMatrix_iterK);  
+*/
+/*
+  V_mcf = V;
+  F_mcf = F;
+  //igl::cotmatrix(V_one,F_one, stiffnessMatrix_iterK );  
+  //igl::MassMatrixType mcfType = igl::MASSMATRIX_TYPE_BARYCENTRIC;
+  //igl::massmatrix(V_one,F_one, mcfType, massMatrix_iterK);  
+
+  // #TODO :: (like Kazhdan), need 2 identify numerical instabilities 
+  //     critical for early terminate, if need be
+  bool haveBndryVertices= meshHasBoundary(V,F);
   if(haveBndryVertices) {
-  	for ( int i = 0; i < 512; i++) {
+  	//for ( int i = 0; i < 512; i++) {
+		//applyOneTimeStepOfMcfBoundaryCase(V,F);
+  	for ( int i = 0; i < 5; i++) {
 		applyOneTimeStepOfMcfBoundaryCase();
   	}
   }
   else { 
   	for ( int i = 0; i < 512; i++) {
-		applyOneTimeStepOfMcfWatertightCase();
+	//	applyOneTimeStepOfMcfWatertightCase(V,F);
   	}
   }
-
-}
-
 */
+}
 
 // STL caauses issues ... OBJ and OFF formats do not ... not sure why though !
   //igl::readOFF(TUTORIAL_SHARED_PATH "/cow.off", V_one, F_one); 

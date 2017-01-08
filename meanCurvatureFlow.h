@@ -30,22 +30,17 @@ using namespace std;
 //Eigen::MatrixXd V_one;
 //Eigen::MatrixXi F_one;
 
-// NOTE :: need extern, when including vars outside teh system ( always copied, when u include ... def does not help!)
- // NOTE :: cannot instantiate, when extern isused! 
-// ... or .... make teh stupid thing a const!
 extern Eigen::MatrixXd V_mcf;
-extern Eigen::MatrixXi F_mcf;
+extern Eigen::MatrixXd F_mcf;
 extern Eigen::SparseMatrix<double> massMatrix_iterK ;
 extern Eigen::SparseMatrix<double> stiffnessMatrix_iterK ; 
 const double delta = 0.001;
-const int k = 0; 					// used to print # iters of MCF, over timesteps ( &key_down  )
+//extern int k = 0; 					// used to print # iters of MCF, over timesteps ( &key_down  )
 
-//bool meshHasBoundary(const Ref<const MatrixXd>& V, const Ref<const MatrixXi>& F);
-bool meshHasBoundary(Ref<MatrixXd>& V, Ref<MatrixXi>& F);
-/*
+bool meshHasBoundary(const Eigen::MatrixXd& V, const Eigen::MatrixXi &F);
+//void applyOneTimeStepOfMcfBoundaryCase(const Eigen::MatrixXd& V, const Eigen::MatrixXi &F);
 void applyOneTimeStepOfMcfBoundaryCase();
-void applyOneTimeStepOfMcfWatertightCase();
-bool key_down( igl::viewer::Viewer& , unsigned char , int );
-void applyMeanCurvatureFlow();
-*/
+void applyOneTimeStepOfMcfWatertightCase(const Eigen::MatrixXd& V, const Eigen::MatrixXi &F);
+void applyMeanCurvatureFlow(const Eigen::MatrixXd& V, const Eigen::MatrixXi &F);
+//bool key_down( igl::viewer::Viewer& , unsigned char , int );
 #endif

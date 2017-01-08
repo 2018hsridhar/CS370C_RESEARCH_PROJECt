@@ -106,3 +106,56 @@ int main(int argc, char** argv)
 #endif
 }
 
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /u/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec456047978/fast"
+/usr/bin/make -f CMakeFiles/cmTryCompileExec456047978.dir/build.make CMakeFiles/cmTryCompileExec456047978.dir/build
+make[1]: Entering directory `/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /u/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec456047978.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTryCompileExec456047978.dir/CheckSymbolExists.c.o   -c /u/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTryCompileExec456047978
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec456047978.dir/link.txt --verbose=1
+/usr/bin/cc       CMakeFiles/cmTryCompileExec456047978.dir/CheckSymbolExists.c.o  -o cmTryCompileExec456047978 -rdynamic 
+CMakeFiles/cmTryCompileExec456047978.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+make[1]: *** [cmTryCompileExec456047978] Error 1
+make[1]: Leaving directory `/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp'
+make: *** [cmTryCompileExec456047978/fast] Error 2
+
+File /u/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /u/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec1170500478/fast"
+/usr/bin/make -f CMakeFiles/cmTryCompileExec1170500478.dir/build.make CMakeFiles/cmTryCompileExec1170500478.dir/build
+make[1]: Entering directory `/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /u/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec1170500478.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTryCompileExec1170500478.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-2.8/Modules/CheckFunctionExists.c
+Linking C executable cmTryCompileExec1170500478
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1170500478.dir/link.txt --verbose=1
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTryCompileExec1170500478.dir/CheckFunctionExists.c.o  -o cmTryCompileExec1170500478 -rdynamic -lpthreads 
+/usr/bin/ld: cannot find -lpthreads
+collect2: error: ld returned 1 exit status
+make[1]: *** [cmTryCompileExec1170500478] Error 1
+make[1]: Leaving directory `/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp'
+make: *** [cmTryCompileExec1170500478/fast] Error 2
+
+

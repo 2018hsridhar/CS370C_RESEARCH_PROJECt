@@ -1,4 +1,4 @@
-FILE(REMOVE_RECURSE
+file(REMOVE_RECURSE
   "CMakeFiles/example_bin.dir/meanCurvatureFlow.cpp.o"
   "CMakeFiles/example_bin.dir/main.cpp.o"
   "CMakeFiles/example_bin.dir/homogenousConversionMethods.cpp.o"
@@ -7,6 +7,6 @@ FILE(REMOVE_RECURSE
 )
 
 # Per-language clean rules from dependency scanning.
-FOREACH(lang CXX)
-  INCLUDE(CMakeFiles/example_bin.dir/cmake_clean_${lang}.cmake OPTIONAL)
-ENDFOREACH(lang)
+foreach(lang CXX)
+  include(CMakeFiles/example_bin.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()

@@ -64,6 +64,9 @@ Eigen::MatrixXd boundaryVertices_scan2;
 
 int main(int argc, char *argv[])
 {
+	std::cout << "executing offset surface generation\n" << std::endl;
+
+
   //if(!readOFF(TUTORIAL_SHARED_PATH "/camelhead.off",scan1.V,scan1.F)) {
   if(!readOFF(TUTORIAL_SHARED_PATH "/planexy.off",scan1.V,scan1.F)) {
     cout<<"Failed to load partial scan one."<<endl;
@@ -73,19 +76,14 @@ int main(int argc, char *argv[])
     cout<<"Failed to load partial scan two."<<endl;
   }
 
-   // just use boundary_loop! my god!
-  Eigen::VectorXi bnd;
-  igl::boundary_loop(scan1.F,bnd); // literally,just use this! does so much work for u!!! ordered, set of indices, just of cardinality of total # of bndry vertices!
-  std::cout << bnd << std::endl;
 
-  return 0;
 
-/*
   // SOLVE for vertex adjacency lists of the two partial scans 
   // USED to determine minimal edges in surface reconstruction algo
   igl::adjacency_list(scan1.F,Adjacency_Scan1);
   igl::adjacency_list(scan2.F,Adjacency_Scan2);
 
+/*
   // discover boundary vertices
   boundaryVerticesStatus_scan1 = igl::is_border_vertex(scan1.V, scan1.F);  
   boundaryVerticesStatus_scan2 = igl::is_border_vertex(scan2.V, scan2.F);  
@@ -118,12 +116,32 @@ int main(int argc, char *argv[])
 // #TODO :: test this 
 /////////////////////////////////////////////////////////////////////////////
 
-/*
-  std::vector<Eigen::Vector2i> allEdges;
-  std::vector<Eigen::Vector2i> visitedLegs;
-  std::vector<int> newTriangleFaces;
+std::vector<Eigen::Vector2i> allEdges;
+std::vector<Eigen::Vector2i> visitedLegs;
+std::vector<int> newTriangleFaces;
+
+////////// SOLVE BOUNDARY VERTICES ( GET CYCLICAL ORDERING TOO ) ///////
+// note that the set of boundary vertex INDICES will be ordered, in a cyclical manner! 
+// ... the real issue, is determing which cyclic order to work with ( might need to reverse bndScan2)
+  Eigen::VectorXi bndScan1;
+  igl::boundary_loop(scan1.F,bndScan1); 
+  Eigen::MatrixXd bndVerts1;
+  igl::slice(scan1.V,bndScan1,1,bndVerts1);
+  int numBoundaryVerticesScan1 = bndScan1.rows();
+  
+/*   
+  std::cout << bndScan1 << std::endl;
+  std::cout << bndVerts1 << std::endl;
+  std::cout << numBoundaryVerticesScan1 << std::endl;
+  return 0;
 */
 
+
+  Eigen::VectorXi bndScan2;
+  igl::boundary_loop(scan1.F,bndScan2); 
+  Eigen::MatrixXd bndVerts2;
+  igl::slice(scan2.V,bndScan2,1,bndVerts2);
+  int numBoundaryVerticesScan2 = bndScan2.rows();
 /*
   [1] solve for a seed edge :: choose a rand point in scan_1, find closest point in scan_2
   [2] keep alternating edge solving , and use the adjacency lists  
@@ -134,7 +152,51 @@ int main(int argc, char *argv[])
 // [1] solve for a seed edge :: choose a rand point in scan_1, find closest point in scan_2 ///
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-// #TODO :: include a method for getting ( vertex,index ) easily?? seems useful, but l8r 
+  int scan1SeedIdx = bndScan1(0);
+  Eigen::MatrixXd scan1SeedPoint = bndVerts1.row(0);
+
+  Eigen::MatrixXd closestPointToSeedInScan2;
+  Eigen::VectorXd smallestSquaredDists;
+  Eigen::VectorXi Ele = Eigen::VectorXi::LinSpaced(bndVerts2.rows(), 0, bndVerts2.rows() - 1);
+  Eigen::VectorXi smallestDistIndxs;
+  igl::point_mesh_squared_distance(scan1SeedPoint,bndVerts2,
+                                    Ele,
+									smallestSquaredDists,smallestDistIndxs,
+									closestPointToSeedInScan2);
+
+  std::cout << "Index = " << smallestDistIndxs(0) << std::endl;  
+  int scan2ClosestPointToSeedIndex = bndScan2(smallestDistIndxs(0));
+  Eigen::Vector2i seedEdge = Eigen::Vector2i( scan1SeedIdx, scan2ClosestPointToSeedIndex + scan1.V.rows());
+ 
+  allEdges.push_back(seedEdge);
+  Eigen::Vector2i oldEdge = seedEdge;
+  Eigen::Vector2i newEdge;
+
+  std::cout << seedEdge.transpose() << std::endl;
+
+// [2] keep alternating edge solving , and use the adjacency lists  
+
+    int p_i = oldEdge(0);
+    int q_j = oldEdge(1) - scan1.V.rows(); // a standard to be kept here!
+
+    std::cout << p_i << "\t\t" << q_j << std::endl;
+
+	//std::vector<int> bndryVertsNodeOne = findAdjBndryVertsInScan1(v_1);
+	//std::vector<int> bndryVertsNodeTwo = findAdjBndryVertsInScan2(v_2);
+
+	// find vertices that are closest to {v_1,v_2} in edge e = (v_1,v_2)
+    // and prevent thyself from using the 2nd-to-last edge ( else, this algo fails to converge ) !
+	int indexClosestAdjBndryNodeToNodeOne;
+	int indexClosestAdjBndryNodeToNodeTwo;
+
+
+
+
+    
+
+
+
+
 
 /*
   int scan1SeedPointIndex = boundaryVerticesIdxs_scan1_array[0];
@@ -156,7 +218,9 @@ int main(int argc, char *argv[])
   allEdges.push_back(seedEdge);
   Eigen::Vector2i oldEdge = seedEdge;
   Eigen::Vector2i newEdge;
+*/
 
+/*
   int iter = 0;
   //while(!edgesAreEqual(newEdge,seedEdge))
   for ( int k = 0; k < 2 ; k++)
@@ -352,6 +416,15 @@ std::vector<int> findAdjBndryVertsInScan1(int vertIdx)
       
   }            
   return bndryVertsToTest;
+
+  /*
+  Eigen::VectorXi bndScan1;
+  igl::boundary_loop(scan1.F,bndScan1); 
+  Eigen::MatrixXd bndVerts1;
+  igl::slice(scan1.V,bndScan1,1,bndVerts1);
+  */
+
+
 }
 
 std::vector<int> findAdjBndryVertsInScan2(int vertIdx)
