@@ -1,4 +1,4 @@
-// what is this :: a greedy surface reconstruction algorithm, from 2 range images
+﻿// what is this :: a greedy surface reconstruction algorithm, from 2 range images
 // solve a closest points scheme, for both sets of vertices, and just add edges. 
 #include <igl/readOBJ.h>
 #include <igl/readOFF.h>
@@ -117,30 +117,32 @@ int main(int argc, char *argv[])
 /////////////////////////////////////////////////////////////////////////////
 
 std::vector<Eigen::Vector2i> allEdges;
-std::vector<Eigen::Vector2i> visitedLegs;
 std::vector<int> newTriangleFaces;
+//std::vector<Eigen::Vector2i> visitedLegs;
 
 ////////// SOLVE BOUNDARY VERTICES ( GET CYCLICAL ORDERING TOO ) ///////
 // note that the set of boundary vertex INDICES will be ordered, in a cyclical manner! 
-// ... the real issue, is determing which cyclic order to work with ( might need to reverse bndScan2)
-  Eigen::VectorXi bndScan1;
-  igl::boundary_loop(scan1.F,bndScan1); 
-  Eigen::MatrixXd bndVerts1;
-  igl::slice(scan1.V,bndScan1,1,bndVerts1);
-  int numBoundaryVerticesScan1 = bndScan1.rows();
+// ... the real issue, is determing which cyclic order to work with ( might need to reverse bndIndexesScan2)
+  Eigen::VectorXi bndIndexesScan1;
+  igl::boundary_loop(scan1.F,bndIndexesScan1); 
+  Eigen::MatrixXd bndVertsScan1;
+  igl::slice(scan1.V,bndIndexesScan1,1,bndVertsScan1); // 1 is for a row option, I believe! #TODO :: refactor?
+  int numBoundaryVerticesScan1 = bndIndexesScan1.rows();
   
 /*   
-  std::cout << bndScan1 << std::endl;
-  std::cout << bndVerts1 << std::endl;
+  std::cout << bndIndexesScan1 << std::endl;
+  std::cout << bndVertsScan1 << std::endl;
   std::cout << numBoundaryVerticesScan1 << std::endl;
   return 0;
 */
 
-  Eigen::VectorXi bndScan2;
-  igl::boundary_loop(scan1.F,bndScan2); 
-  Eigen::MatrixXd bndVerts2;
-  igl::slice(scan2.V,bndScan2,1,bndVerts2);
-  int numBoundaryVerticesScan2 = bndScan2.rows();
+  Eigen::VectorXi bndIndexesScan2;
+  igl::boundary_loop(scan2.F,bndIndexesScan2); 
+  Eigen::MatrixXd bndVertsScan2;
+  igl::slice(scan2.V,bndIndexesScan2,1,bndVertsScan2);
+  int numBoundaryVerticesScan2 = bndIndexesScan2.rows();
+// YES, num boundary vertices matches up! 
+
 /*
   [1] solve for a seed edge :: choose a rand point in scan_1, find closest point in scan_2
   [2] keep alternating edge solving , and use the adjacency lists  
@@ -150,51 +152,68 @@ std::vector<int> newTriangleFaces;
 ///////////////////////////////////////////////////////////////////////////////////////////////
 // [1] solve for a seed edge :: choose a rand point in scan_1, find closest point in scan_2 ///
 ///////////////////////////////////////////////////////////////////////////////////////////////
+/// #TODO :: name this better!
 
-  int scan1SeedIdx = bndScan1(0); // i, @ thsi point, itself, is 0 
-  Eigen::MatrixXd scan1SeedPoint = bndVerts1.row(0);
+  std::cout << "SETTING up a seed edge.\n ";
+  int scan1SeedIdx = bndIndexesScan1(0); // i, @ this point, itself, is 0 
+  Eigen::MatrixXd scan1SeedPoint = bndVertsScan1.row(0);
 
   Eigen::MatrixXd closestPointToSeedInScan2;
   Eigen::VectorXd smallestSquaredDists;
-  Eigen::VectorXi Ele = Eigen::VectorXi::LinSpaced(bndVerts2.rows(), 0, bndVerts2.rows() - 1);
+  Eigen::VectorXi Ele = Eigen::VectorXi::LinSpaced(bndVertsScan2.rows(), 0, bndVertsScan2.rows() - 1);
   Eigen::VectorXi smallestDistIndxs;
-  igl::point_mesh_squared_distance(scan1SeedPoint,bndVerts2,
+  igl::point_mesh_squared_distance(scan1SeedPoint,bndVertsScan2,
                                     Ele,
 									smallestSquaredDists,smallestDistIndxs,
 									closestPointToSeedInScan2);
 
   //std::cout << "Index = " << smallestDistIndxs(0) << std::endl;  
-  int scan2ClosestPointToSeedIndex = bndScan2(smallestDistIndxs(0));
+  int scan2ClosestPointToSeedIndex = bndIndexesScan2(smallestDistIndxs(0));
   Eigen::Vector2i seedEdge = Eigen::Vector2i( scan1SeedIdx, scan2ClosestPointToSeedIndex + scan1.V.rows());
  
   allEdges.push_back(seedEdge);
   Eigen::Vector2i newEdge;
 
-  std::cout << seedEdge.transpose() << std::endl;
+  //std::cout << seedEdge.transpose() << std::endl;
 
 // [2] keep alternating edge solving , and use the adjacency lists  
-	int i = scan1SeedIdx;
-	int j = scan2ClosestPointToSeedIndex; 
+	int i = 0; 
+	int j = smallestDistIndxs(0);
 
+    std::cout << "PROGRESSING over the Greedy Zippering Surface Reconstruction Algorithm.\n ";
     do
     {
-		int p_i = bndScan1(i);
-		int q_j = bndScan2(j);
-   		std::cout << i << "\t\t" << j << std::endl;
-    	std::cout << p_i << "\t\t" << q_j << std::endl;
 
-        int p_i_plus_1 = bndScan1(i+1);
-        int q_j_plus_1 = bndScan2(j+1);
+	/*
+	 NOTE where access to information lies ... index into boundary vertices, vs bndry vertices itself, vs index!
+		- int bndryVertexIdx = bndIndexesScan1(i); // i, @ this point, itself, is 0 
+		- Eigen::MatrixXd bndryVertexNode = bndVertsScan1.row(i);
+	*/
 
+
+// #TODO :: fix bug in i-j update
+   		//std::cout << " indices i and j are \t\t " << i << "\t\t" << j << std::endl;
+		int p_i = bndIndexesScan1(i);
+        //std::cout << "can access p_i" << std::endl;
+		int q_j = bndIndexesScan2(j);
+        //std::cout << "can access q_j" << std::endl; // ERR :: cannot access this! 
+
+        int p_i_plus_1 = bndIndexesScan1((i + 1) % numBoundaryVerticesScan1);
+        int q_j_plus_1 = bndIndexesScan2((j + 1) % numBoundaryVerticesScan2); 
+
+    	//std::cout << " bndry vertices p_i, q_j are \t\t " << p_i << "\t\t" << q_j << std::endl;
+    	//std::cout << " the next bndry vertices p_i_plus_1, q_j_plus_1, are \t\t " << p_i_plus_1 << "\t\t" << q_j_plus_1 << std::endl;
  		//  assess d(b_p_i, b_p_i_plus_1) <= d(b_q_j, b_q_j_plus_1)
-	    Eigen::VectorXd vertex_b_1_i = bndVerts1.row(p_i);
-		Eigen::VectorXd vertex_b_2_j = bndVerts2.row(q_i);
+	    Eigen::VectorXd b_p_i = scan1.V.row(p_i);
+		Eigen::VectorXd b_q_j = scan2.V.row(q_j);
 
-		Eigen::VectorXd vertex_b_1_i_plus_1 = bndVerts1.row(p_i_plus_1);
-		Eigen::VectorXd vertex_b_2_j_plus_1 = bndVerts2.row(q_i_plus_1);
+		Eigen::VectorXd b_p_i_plus_1 = scan1.V.row(p_i_plus_1);
+		Eigen::VectorXd b_q_j_plus_1 = scan2.V.row(q_j_plus_1);
+     
+        //std::cout << "Can Access border vertex data\n";
 
-		double scan1Distance =  (vertex_b_1_i - vertex_b_1_i_plus_1).squaredNorm();
-		double scan2Distance =  (vertex_b_2_j - vertex_b_2_j_plus_1).squaredNorm();
+		double scan1Distance =  (b_p_i - b_p_i_plus_1).squaredNorm();
+		double scan2Distance =  (b_q_j - b_q_j_plus_1).squaredNorm();
 		//std::cout << scan1Distance << '\t' << scan2Distance << std::endl;
 		bool isItEdgeInScanOne = (scan1Distance < scan2Distance);
 		// construct new edge
@@ -205,8 +224,8 @@ std::vector<int> newTriangleFaces;
 			i = (i + 1) % numBoundaryVerticesScan1;
 		}
 		else {  
-			newEdge = Eigen::Vector2i(p_i, (q_j_plus_1+ scan1.V.rows()));
-			newFace = Eigen::Vector3i(p_i,q_j,,(q_j_plus_1+ scan1.V.rows()));
+			newEdge = Eigen::Vector2i(p_i, (q_j_plus_1 + scan1.V.rows()));
+			newFace = Eigen::Vector3i(p_i,(q_j + scan1.V.rows()),(q_j_plus_1+ scan1.V.rows()));
 			j = (j + 1) % numBoundaryVerticesScan2;
 		}
 
@@ -215,7 +234,9 @@ std::vector<int> newTriangleFaces;
 		newTriangleFaces.push_back(newFace(0));
 		newTriangleFaces.push_back(newFace(1));
 		newTriangleFaces.push_back(newFace(2));
-    } while(!edgesAreEqual(newEdge,seedEdge))
+    } while(!edgesAreEqual(newEdge,seedEdge));
+
+    // i believe the mesh is watertight ( get newEdge = seedEdge, and we add that face before breaking )
 
 /*
   int scan1SeedPointIndex = boundaryVerticesIdxs_scan1_array[0];
@@ -338,12 +359,12 @@ std::vector<int> newTriangleFaces;
 //////////////////////////////////////////////////////////////////////////
 // [3] end once you have the original edge data ! Add this last face  ///
 //////////////////////////////////////////////////////////////////////////
-// #TODO this step!
  
-/*
-  // convert the set of (3*faces) integers, of vertex indices, to a matrix ( for faces data )
+  // CONVERT the set of ( 3 * faces ) integers, of vertex indices, to a matrix ( for faces data )
+
+  std::cout << "Constructing interpolating surface vertex and face data.\n";
   int numOfFaces = newTriangleFaces.size() / 3;
-  Eigen::MatrixXi faces = Eigen::Map<Eigen::MatrixXi,RowMajor> (&newTriangleFaces[0],3,numOfFaces); // this is not right !
+  Eigen::MatrixXi faces = Eigen::Map<Eigen::MatrixXi,RowMajor> (&newTriangleFaces[0],3,numOfFaces); // #TODO :: check if this is correct!
   interpolatedSurface.F = faces.transpose();
   std::cout << interpolatedSurface.F << std::endl;
 
@@ -352,7 +373,7 @@ std::vector<int> newTriangleFaces;
   igl::cat(1,scan1.V,scan2.V,scene.V);
   igl::cat(1,scan1.F, MatrixXi(scan2.F.array() + scan1.V.rows()), scans.F);
   igl::cat(1,scans.F, interpolatedSurface.F, scene.F);
-*/
+
   /***********************************************************/ 
   // SETUP LibIgl Viewer 
   /***********************************************************/ 
@@ -437,10 +458,10 @@ std::vector<int> findAdjBndryVertsInScan1(int vertIdx)
   return bndryVertsToTest;
 
   /*
-  Eigen::VectorXi bndScan1;
-  igl::boundary_loop(scan1.F,bndScan1); 
-  Eigen::MatrixXd bndVerts1;
-  igl::slice(scan1.V,bndScan1,1,bndVerts1);
+  Eigen::VectorXi bndIndexesScan1;
+  igl::boundary_loop(scan1.F,bndIndexesScan1); 
+  Eigen::MatrixXd bndVertsScan1;
+  igl::slice(scan1.V,bndIndexesScan1,1,bndVertsScan1);
   */
 
 

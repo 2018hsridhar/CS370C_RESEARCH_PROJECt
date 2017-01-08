@@ -159,3 +159,79 @@ make[1]: Leaving directory `/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutor
 make: *** [cmTryCompileExec1170500478/fast] Error 2
 
 
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_eeeda/fast"
+/usr/bin/make -f CMakeFiles/cmTC_eeeda.dir/build.make CMakeFiles/cmTC_eeeda.dir/build
+make[1]: Entering directory '/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_eeeda.dir/CheckSymbolExists.c.o
+/usr/bin/cc     -o CMakeFiles/cmTC_eeeda.dir/CheckSymbolExists.c.o   -c /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_eeeda
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_eeeda.dir/link.txt --verbose=1
+/usr/bin/cc       CMakeFiles/cmTC_eeeda.dir/CheckSymbolExists.c.o  -o cmTC_eeeda -rdynamic 
+CMakeFiles/cmTC_eeeda.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_eeeda.dir/build.make:97: recipe for target 'cmTC_eeeda' failed
+make[1]: *** [cmTC_eeeda] Error 1
+make[1]: Leaving directory '/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_eeeda/fast' failed
+make: *** [cmTC_eeeda/fast] Error 2
+
+File /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_f0123/fast"
+/usr/bin/make -f CMakeFiles/cmTC_f0123.dir/build.make CMakeFiles/cmTC_f0123.dir/build
+make[1]: Entering directory '/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_f0123.dir/CheckFunctionExists.c.o
+/usr/bin/cc    -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_f0123.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.5/Modules/CheckFunctionExists.c
+Linking C executable cmTC_f0123
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f0123.dir/link.txt --verbose=1
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTC_f0123.dir/CheckFunctionExists.c.o  -o cmTC_f0123 -rdynamic -lpthreads 
+/usr/bin/ld: cannot find -lpthreads
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_f0123.dir/build.make:97: recipe for target 'cmTC_f0123' failed
+make[1]: *** [cmTC_f0123] Error 1
+make[1]: Leaving directory '/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_f0123/fast' failed
+make: *** [cmTC_f0123/fast] Error 2
+
+
+Determining if the function glXGetProcAddressEXT exists failed with the following output:
+Change Dir: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_f5c84/fast"
+/usr/bin/make -f CMakeFiles/cmTC_f5c84.dir/build.make CMakeFiles/cmTC_f5c84.dir/build
+make[1]: Entering directory '/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_f5c84.dir/CheckFunctionExists.c.o
+/usr/bin/cc    -DCHECK_FUNCTION_EXISTS=glXGetProcAddressEXT   -o CMakeFiles/cmTC_f5c84.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.5/Modules/CheckFunctionExists.c
+Linking C executable cmTC_f5c84
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f5c84.dir/link.txt --verbose=1
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=glXGetProcAddressEXT    CMakeFiles/cmTC_f5c84.dir/CheckFunctionExists.c.o  -o cmTC_f5c84 -rdynamic /usr/lib/x86_64-linux-gnu/libGL.so 
+CMakeFiles/cmTC_f5c84.dir/CheckFunctionExists.c.o: In function `main':
+CheckFunctionExists.c:(.text+0x15): undefined reference to `glXGetProcAddressEXT'
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_f5c84.dir/build.make:98: recipe for target 'cmTC_f5c84' failed
+make[1]: *** [cmTC_f5c84] Error 1
+make[1]: Leaving directory '/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_f5c84/fast' failed
+make: *** [cmTC_f5c84/fast] Error 2
+
+
