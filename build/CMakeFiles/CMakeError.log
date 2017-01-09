@@ -1,21 +1,22 @@
 Determining if the pthread_create exist failed with the following output:
 Change Dir: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles/CMakeTmp
 
-Run Build Command:/usr/bin/make "cmTryCompileExec3840693605/fast"
-/usr/bin/make -f CMakeFiles/cmTryCompileExec3840693605.dir/build.make CMakeFiles/cmTryCompileExec3840693605.dir/build
-make[1]: Entering directory `/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles/CMakeTmp'
-/usr/bin/cmake -E cmake_progress_report /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles/CMakeTmp/CMakeFiles 1
-Building C object CMakeFiles/cmTryCompileExec3840693605.dir/CheckSymbolExists.c.o
-/usr/bin/cc    -o CMakeFiles/cmTryCompileExec3840693605.dir/CheckSymbolExists.c.o   -c /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
-Linking C executable cmTryCompileExec3840693605
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec3840693605.dir/link.txt --verbose=1
-/usr/bin/cc       CMakeFiles/cmTryCompileExec3840693605.dir/CheckSymbolExists.c.o  -o cmTryCompileExec3840693605 -rdynamic 
-CMakeFiles/cmTryCompileExec3840693605.dir/CheckSymbolExists.c.o: In function `main':
+Run Build Command:"/usr/bin/make" "cmTC_fba49/fast"
+/usr/bin/make -f CMakeFiles/cmTC_fba49.dir/build.make CMakeFiles/cmTC_fba49.dir/build
+make[1]: Entering directory '/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_fba49.dir/CheckSymbolExists.c.o
+/usr/bin/cc     -o CMakeFiles/cmTC_fba49.dir/CheckSymbolExists.c.o   -c /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_fba49
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_fba49.dir/link.txt --verbose=1
+/usr/bin/cc       CMakeFiles/cmTC_fba49.dir/CheckSymbolExists.c.o  -o cmTC_fba49 -rdynamic 
+CMakeFiles/cmTC_fba49.dir/CheckSymbolExists.c.o: In function `main':
 CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
 collect2: error: ld returned 1 exit status
-make[1]: *** [cmTryCompileExec3840693605] Error 1
-make[1]: Leaving directory `/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles/CMakeTmp'
-make: *** [cmTryCompileExec3840693605/fast] Error 2
+CMakeFiles/cmTC_fba49.dir/build.make:97: recipe for target 'cmTC_fba49' failed
+make[1]: *** [cmTC_fba49] Error 1
+make[1]: Leaving directory '/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_fba49/fast' failed
+make: *** [cmTC_fba49/fast] Error 2
 
 File /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
 /* */
@@ -35,39 +36,41 @@ int main(int argc, char** argv)
 Determining if the function pthread_create exists in the pthreads failed with the following output:
 Change Dir: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles/CMakeTmp
 
-Run Build Command:/usr/bin/make "cmTryCompileExec1727159145/fast"
-/usr/bin/make -f CMakeFiles/cmTryCompileExec1727159145.dir/build.make CMakeFiles/cmTryCompileExec1727159145.dir/build
-make[1]: Entering directory `/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles/CMakeTmp'
-/usr/bin/cmake -E cmake_progress_report /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles/CMakeTmp/CMakeFiles 1
-Building C object CMakeFiles/cmTryCompileExec1727159145.dir/CheckFunctionExists.c.o
-/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTryCompileExec1727159145.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-2.8/Modules/CheckFunctionExists.c
-Linking C executable cmTryCompileExec1727159145
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1727159145.dir/link.txt --verbose=1
-/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTryCompileExec1727159145.dir/CheckFunctionExists.c.o  -o cmTryCompileExec1727159145 -rdynamic -lpthreads 
+Run Build Command:"/usr/bin/make" "cmTC_cab74/fast"
+/usr/bin/make -f CMakeFiles/cmTC_cab74.dir/build.make CMakeFiles/cmTC_cab74.dir/build
+make[1]: Entering directory '/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_cab74.dir/CheckFunctionExists.c.o
+/usr/bin/cc    -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_cab74.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.5/Modules/CheckFunctionExists.c
+Linking C executable cmTC_cab74
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_cab74.dir/link.txt --verbose=1
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTC_cab74.dir/CheckFunctionExists.c.o  -o cmTC_cab74 -rdynamic -lpthreads 
 /usr/bin/ld: cannot find -lpthreads
 collect2: error: ld returned 1 exit status
-make[1]: *** [cmTryCompileExec1727159145] Error 1
-make[1]: Leaving directory `/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles/CMakeTmp'
-make: *** [cmTryCompileExec1727159145/fast] Error 2
+CMakeFiles/cmTC_cab74.dir/build.make:97: recipe for target 'cmTC_cab74' failed
+make[1]: *** [cmTC_cab74] Error 1
+make[1]: Leaving directory '/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_cab74/fast' failed
+make: *** [cmTC_cab74/fast] Error 2
 
 
 Determining if the function glXGetProcAddressEXT exists failed with the following output:
 Change Dir: /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles/CMakeTmp
 
-Run Build Command:/usr/bin/make "cmTryCompileExec1483471439/fast"
-/usr/bin/make -f CMakeFiles/cmTryCompileExec1483471439.dir/build.make CMakeFiles/cmTryCompileExec1483471439.dir/build
-make[1]: Entering directory `/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles/CMakeTmp'
-/usr/bin/cmake -E cmake_progress_report /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles/CMakeTmp/CMakeFiles 1
-Building C object CMakeFiles/cmTryCompileExec1483471439.dir/CheckFunctionExists.c.o
-/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=glXGetProcAddressEXT   -o CMakeFiles/cmTryCompileExec1483471439.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-2.8/Modules/CheckFunctionExists.c
-Linking C executable cmTryCompileExec1483471439
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1483471439.dir/link.txt --verbose=1
-/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=glXGetProcAddressEXT    CMakeFiles/cmTryCompileExec1483471439.dir/CheckFunctionExists.c.o  -o cmTryCompileExec1483471439 -rdynamic -lGL 
-CMakeFiles/cmTryCompileExec1483471439.dir/CheckFunctionExists.c.o: In function `main':
+Run Build Command:"/usr/bin/make" "cmTC_12cfb/fast"
+/usr/bin/make -f CMakeFiles/cmTC_12cfb.dir/build.make CMakeFiles/cmTC_12cfb.dir/build
+make[1]: Entering directory '/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_12cfb.dir/CheckFunctionExists.c.o
+/usr/bin/cc    -DCHECK_FUNCTION_EXISTS=glXGetProcAddressEXT   -o CMakeFiles/cmTC_12cfb.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.5/Modules/CheckFunctionExists.c
+Linking C executable cmTC_12cfb
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_12cfb.dir/link.txt --verbose=1
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=glXGetProcAddressEXT    CMakeFiles/cmTC_12cfb.dir/CheckFunctionExists.c.o  -o cmTC_12cfb -rdynamic /usr/lib/x86_64-linux-gnu/libGL.so 
+CMakeFiles/cmTC_12cfb.dir/CheckFunctionExists.c.o: In function `main':
 CheckFunctionExists.c:(.text+0x15): undefined reference to `glXGetProcAddressEXT'
 collect2: error: ld returned 1 exit status
-make[1]: *** [cmTryCompileExec1483471439] Error 1
-make[1]: Leaving directory `/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles/CMakeTmp'
-make: *** [cmTryCompileExec1483471439/fast] Error 2
+CMakeFiles/cmTC_12cfb.dir/build.make:98: recipe for target 'cmTC_12cfb' failed
+make[1]: *** [cmTC_12cfb] Error 1
+make[1]: Leaving directory '/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/build/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_12cfb/fast' failed
+make: *** [cmTC_12cfb/fast] Error 2
 
 

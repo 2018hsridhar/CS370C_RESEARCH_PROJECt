@@ -1,5 +1,0 @@
-/u/hari2018/CS370C/LIBS/libigl-example-project/cmake/CMakeFiles/example_bin.dir
-/u/hari2018/CS370C/LIBS/libigl-example-project/cmake/libigl/glew/CMakeFiles/glew.dir
-/u/hari2018/CS370C/LIBS/libigl-example-project/cmake/libigl/glfw/src/CMakeFiles/glfw.dir
-/u/hari2018/CS370C/LIBS/libigl-example-project/cmake/libigl/glfw/src/CMakeFiles/glfw_objects.dir
-/u/hari2018/CS370C/LIBS/libigl-example-project/cmake/libigl/glfw/CMakeFiles/uninstall.dir

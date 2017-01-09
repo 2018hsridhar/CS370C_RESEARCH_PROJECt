@@ -1,0 +1,6 @@
+--------------------
+--- Jan 09 Notes ---
+--------------------
+1. Refer to canonical example, to get the original cmake, and CMakeLists.txt files, from Alec Jacobson's set up
+	https://github.com/libigl/libigl-example-project
+
