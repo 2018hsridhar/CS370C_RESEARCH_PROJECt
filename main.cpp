@@ -31,17 +31,20 @@ Eigen::MatrixXi F;
 int main(int argc, char *argv[])
 {
 
-  // LOAD mesh data ( OFF format )
-  igl::readOFF(TUTORIAL_SHARED_PATH "/camelhead.off",V,F);
-  //bool hasBndry = meshHasBoundary(V,F);
-  //std::cout << hasBndry << std::endl;
+    // LOAD mesh data ( OFF format )
+    igl::readOFF(TUTORIAL_SHARED_PATH "/camelhead.off",V,F);
+    bool hasBndry = meshHasBoundary(V,F);
+    if(hasBndry)
+    {
+        std::cout << "Camel does have an identifiable boundary.\n";
+    }
 
-  // PLOT initial mesh 
-  igl::viewer::Viewer viewer;
-  
-  //viewer.callback_key_down = &key_down;
-  viewer.data.set_mesh(V, F);
-  viewer.launch();
+    // PLOT initial mesh 
+    igl::viewer::Viewer viewer;
 
-  return 0;
+    //viewer.callback_key_down = &key_down;
+    viewer.data.set_mesh(V, F);
+    viewer.launch();
+
+    return 0;
 }
