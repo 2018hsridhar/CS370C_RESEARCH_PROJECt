@@ -3317,20 +3317,6 @@ iterator
 -
 Eigen/StdVector
 -
-tiling/SliceStack.h
-/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/tiling/SliceStack.h
-tiling/SliceStack.cpp
-/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/tiling/SliceStack.cpp
-tiling/curvatureFlow.h
-/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/tiling/curvatureFlow.h
-tiling/glob_defs.h
-/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/tiling/glob_defs.h
-tiling/offsetSurface.h
-/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/tiling/offsetSurface.h
-tiling/viewTetMesh.h
-/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/tiling/viewTetMesh.h
-tiling/Helpers.h
-/v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/tiling/Helpers.h
 
 /v/filer4b/v38q001/hari2018/CS370C/LIBS/libigl/tutorial/CS370C_RESEARCH_PROJECt/meanCurvatureFlow.cpp
 meanCurvatureFlow.h
