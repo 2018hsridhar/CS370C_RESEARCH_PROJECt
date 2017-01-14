@@ -1,26 +1,9 @@
-#include <igl/readSTL.h>
 #include <igl/readOFF.h>
-#include <igl/readOBJ.h>
-
-#include <igl/writeSTL.h>
-#include <igl/viewer/Viewer.h>
 #include "tutorial_shared_path.h"
-#include <igl/rotation_matrix_from_directions.h>
-#include <igl/writeOFF.h>
-#include <igl/per_vertex_normals.h>
-#include <igl/point_mesh_squared_distance.h>
-#include <igl/cotmatrix.h>
-#include <igl/massmatrix.h>
-#include <igl/doublearea.h>
-#include <igl/exterior_edges.h> 
-#include <igl/edges.h> 
-#include <igl/is_boundary_edge.h>
-#include <igl/on_boundary.h> 
-#include <igl/is_border_vertex.h>
-#include <set>
+#include <igl/viewer/Viewer.h>
 
-// my own libraries ( note :: test libraries seperately, themselves, THEN include them ) 
-#include "meanCurvatureFlow.h" 
+// MY LIBS 
+#include "meanCurvatureFlow.h"
 
 using namespace Eigen; 
 using namespace std;
@@ -32,18 +15,24 @@ int main(int argc, char *argv[])
 {
 
     // LOAD mesh data ( OFF format )
-    igl::readOFF(TUTORIAL_SHARED_PATH "/camelhead.off",V,F);
-    bool hasBndry = meshHasBoundary(V,F);
+    //igl::readOFF(TUTORIAL_SHARED_PATH "/camelhead.off",V,F);
+    igl::readOFF(TUTORIAL_SHARED_PATH "/cow.off",V,F);
+    bool hasBndry = MCF::meshHasBoundary(V,F);
     if(hasBndry)
     {
-        std::cout << "Camel does have an identifiable boundary.\n";
+        std::cout << "INPUT Mesh does have a boundary.\n";
     }
-
     // PLOT initial mesh 
     igl::viewer::Viewer viewer;
 
+	// ... how to update viewer, over a timestep ... that would be nice !
+	// ... see Clement's approach to MCF code ... sure, that works, I guess ... 
+
     //viewer.callback_key_down = &key_down;
-    viewer.data.set_mesh(V, F);
+    //viewer.data.set_mesh(V, F);
+	Eigen::MatrixXd Vc;
+	MCF::computeMeanCurvatureFlow(V,F,0.001, Vc);
+	viewer.data.set_mesh(Vc,F);
     viewer.launch();
 
     return 0;
