@@ -40,6 +40,8 @@ option(LIBIGL_WITH_NANOGUI     "Use Nanogui menu"   OFF)
 # libigl options: choose your dependencies (by default everything is OFF except opengl) 
 option(LIBIGL_WITH_VIEWER      "Use OpenGL viewer"  ON)
 option(LIBIGL_WITH_OPENGL      "Use OpenGL"         ON)
+# need this addition too, apparantely
+option(LIBIGL_WITH_OPENGL_GLFW      "Use OpenGL GLFW"         ON)
 option(LIBIGL_WITH_GLFW        "Use GLFW"           ON)
 option(LIBIGL_WITH_BBW         "Use BBW"            OFF)
 option(LIBIGL_WITH_EMBREE      "Use Embree"         OFF)

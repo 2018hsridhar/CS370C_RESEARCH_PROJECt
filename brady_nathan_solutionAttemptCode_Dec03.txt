@@ -36,9 +36,7 @@ struct Mesh
 
 
 //void convertFromObjToPly(std::string);
-
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
   //if(!readSTL("horseBehind.stl",behind.V,behind.F,behind.N))
   if(!readSTL("horseBehind.stl",behind.V,behind.F,behind.N))
   {
@@ -90,11 +88,6 @@ int main(int argc, char *argv[])
   Eigen::VectorXd Temperatures;
   //SliceStack::computeLaplace(slice_no,TV,TF,TT,TO,Temperatures);
    
-  
-
-
-
-
   /***********************************************************/ 
   // SETUP LibIgl Viewer 
   /***********************************************************/ 
@@ -103,4 +96,4 @@ int main(int argc, char *argv[])
   viewer.launch();
 
 
- }
+}
